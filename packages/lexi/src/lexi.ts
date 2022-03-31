@@ -7,7 +7,7 @@ const PUBLIC_STRING_LENGTH = 32;
 const newNonce = () => randomBytes(secretbox.nonceLength);
 
 /**
- * The "normal2 way to generate a symmetric key pair
+ * The "normal" way to generate a symmetric key pair
  */
 export const generateKey = () => encodeBase64(randomBytes(secretbox.keyLength));
 
@@ -34,6 +34,7 @@ export const generateKeyFromSignature = (publicString: string, signKey: SignKeyP
 
 /**
  * Symmetric key encryption code taken from https://github.com/dchest/tweetnacl-js/wiki/Examples#secretbox
+ * Uses x25519-xsalsa20-poly1305
  * @param json
  * @param key
  */
