@@ -16,7 +16,6 @@ import {
 import { clusterApiUrl } from '@solana/web3.js';
 import {LexiWallet} from "lexi";
 
-require('./App.css');
 require('@solana/wallet-adapter-react-ui/styles.css');
 
 export const App: FC = () => {
@@ -60,8 +59,8 @@ const Context: FC<{ children: ReactNode }> = ({ children }) => {
 };
 
 const Content: FC = () => {
-  const [message, setMessage] = useState("")
-  const [encryptedMessage, setEncryptedMessage] = useState("")
+  const [input, setInput] = useState("")
+  const [output, setOutput] = useState("")
   const wallet = useWallet();
 
   const lexi = useMemo(() => {
@@ -80,16 +79,38 @@ const Content: FC = () => {
   }, [wallet])
 
   const encrypt = useCallback(async () => {
-    lexi?.encryptForMe({ message }).then((encryptedMessage: string) => {
-      setEncryptedMessage(encryptedMessage)
-    })
-  }, [message, lexi])
+    lexi?.encryptForMe({ message: input }).then(setOutput)
+  }, [input, lexi])
+
+  const decrypt = useCallback(async () => {
+    lexi?.decrypt(input).then(({message}) => setOutput(message as string))
+  }, [input, lexi])
+
+  const clear = useCallback(() => {
+    setInput("")
+    setOutput("")
+  }, [])
 
   return <div>
-    <WalletMultiButton />
-    <textarea onChange={(e) => setMessage(e.target.value)}/>
-    <button onClick={encrypt}>Encrypt</button>
-    {encryptedMessage && <textarea value={encryptedMessage}/>}
+    <div className="ml-auto p-5">
+      <WalletMultiButton />
+    </div>
+    <div className="flex justify-center items-center flex-wrap w-1/2 mx-auto">
+      <div className="w-full pt-3">
+        <h1 className="text-center text-3xl">Encrypt</h1>
+      </div>
+      <div className="w-full text-center pt-3 text-gray-800">
+        <textarea onChange={(e) => setInput(e.target.value)}/>
+      </div>
+      <div className="w-full text-center pt-3">
+        <button className="btn btn-blue" onClick={encrypt}>Encrypt</button>
+        <button className="btn btn-blue" onClick={decrypt}>Decrypt</button>
+        <button className="btn btn-blue" onClick={clear}>Clear</button>
+      </div>
+      <div className="w-full text-center pt-3 text-gray-800">
+        {output && <textarea readOnly={true} value={output}/>}
+      </div>
+    </div>
   </div>;
 };
 

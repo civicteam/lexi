@@ -1,5 +1,5 @@
 {
-  "name": "examples",
+  "name": "@civic/lexi-example-solana-cra",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
