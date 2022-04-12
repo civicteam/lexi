@@ -1,10 +1,10 @@
 # lexi
 
-An encryption mechanism based on "Lexi Magic" - deriving a symmetric encryption key from signing public data
+An encryption mechanism based on "Lexi Magic" - deriving an encryption key from signing public data
 
 ## Quick Setup
 
 ```shell
 yarn
-yarn start
+yarn test
 ```

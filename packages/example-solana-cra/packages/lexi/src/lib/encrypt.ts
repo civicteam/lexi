@@ -1,11 +1,10 @@
 import {secretbox} from "tweetnacl";
-import {decodeBase64, decodeUTF8, encodeBase64, encodeUTF8} from "tweetnacl-util";
-import type {JWE} from "did-jwt";
-import * as didJWT from "did-jwt";
+import {createJWE, decryptJWE, JWE, resolveX25519Encrypters, x25519Decrypter} from "did-jwt";
 import {lexiResolver, resolveDID} from "./did";
-import {TextDecoder, TextEncoder} from "util";
 import {generateX25519KeyPairFromSignature, newNonce, publicString} from "./key";
 import type {SignWallet} from './wallet';
+import * as base64 from "@stablelib/base64";
+import * as utf8 from "@stablelib/utf8";
 
 /**
  * Symmetric key encryption code taken from https://github.com/dchest/tweetnacl-js/wiki/Examples#secretbox
@@ -15,14 +14,14 @@ import type {SignWallet} from './wallet';
  */
 export const encrypt = (json: Record<string, unknown>, key: Uint8Array): string => {
   const nonce = newNonce();
-  const messageUint8 = decodeUTF8(JSON.stringify(json));
+  const messageUint8 = utf8.encode(JSON.stringify(json));
   const box = secretbox(messageUint8, nonce, key);
 
   const fullMessage = new Uint8Array(nonce.length + box.length);
   fullMessage.set(nonce);
   fullMessage.set(box, nonce.length);
 
-  return encodeBase64(fullMessage);
+  return base64.encode(fullMessage);
 };
 
 /**
@@ -33,13 +32,12 @@ export const encrypt = (json: Record<string, unknown>, key: Uint8Array): string 
  */
 export const encryptForDid = async (json: Record<string, unknown>, recipient: string, resolve = resolveDID): Promise<JWE> => {
   const didJwtResolver = {resolve};
-  const encoder = new TextEncoder(); // always utf-8
-  const encoded = encoder.encode(JSON.stringify(json));
-  const encrypters = await didJWT.resolveX25519Encrypters(
+  const encoded = utf8.encode(JSON.stringify(json));
+  const encrypters = await resolveX25519Encrypters(
     [recipient],
     didJwtResolver
   );
-  return didJWT.createJWE(encoded, encrypters);
+  return createJWE(encoded, encrypters);
 }
 
 /**
@@ -56,10 +54,9 @@ export const encryptForMe = async (json: Record<string, unknown>, me: string, si
 
 export const decryptJWEWithLexi = async (jwe: JWE, signer: SignWallet): Promise<Record<string, unknown>> => {
   const lexiKeypair = await generateX25519KeyPairFromSignature(publicString, signer);
-  const decrypter = didJWT.x25519Decrypter(lexiKeypair.secretKey)
-  const decrypted = await didJWT.decryptJWE(jwe,decrypter)
-  const decoder = new TextDecoder('utf-8');
-  return JSON.parse(decoder.decode(decrypted));
+  const decrypter = x25519Decrypter(lexiKeypair.secretKey)
+  const decrypted = await decryptJWE(jwe,decrypter)
+  return JSON.parse(utf8.decode(decrypted));
 }
 
 /**
@@ -68,7 +65,7 @@ export const decryptJWEWithLexi = async (jwe: JWE, signer: SignWallet): Promise<
  * @param key
  */
 export const decrypt = (messageWithNonce: string, key: Uint8Array): Record<string, unknown> => {
-  const messageWithNonceAsUint8Array = decodeBase64(messageWithNonce);
+  const messageWithNonceAsUint8Array = base64.decode(messageWithNonce);
   const nonce = messageWithNonceAsUint8Array.slice(0, secretbox.nonceLength);
   const message = messageWithNonceAsUint8Array.slice(
     secretbox.nonceLength,
@@ -81,6 +78,6 @@ export const decrypt = (messageWithNonce: string, key: Uint8Array): Record<strin
     throw new Error("Could not decrypt message");
   }
 
-  const base64DecryptedMessage = encodeUTF8(decrypted);
+  const base64DecryptedMessage = utf8.decode(decrypted);
   return JSON.parse(base64DecryptedMessage);
 };
