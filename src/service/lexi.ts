@@ -1,5 +1,5 @@
 import type {PersonalEncryptionWallet, SignWallet} from "../lib/wallet";
-import {decryptJWEWithLexi, encryptForDid, encryptForMe} from "../lib/crypto";
+import {decryptJWEWithLexi, encryptForDid, encryptForMe} from "../lib/encrypt";
 
 export class LexiWallet implements PersonalEncryptionWallet, SignWallet {
   private wallet: SignWallet;
