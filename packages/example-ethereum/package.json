@@ -1,7 +1,7 @@
 {
   "name": "@civic/lexi-example-ethereum",
   "version": "1.0.0",
-  "private": "true",
+  "private": true,
   "author": "dankelleher",
   "license": "MIT",
   "scripts": {

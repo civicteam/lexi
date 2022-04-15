@@ -14,7 +14,7 @@ import {
   TorusWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
 import { clusterApiUrl } from '@solana/web3.js';
-import {LexiWallet} from "lexi";
+import {LexiWallet} from "@civic/lexi";
 
 require('./App.css');
 require('@solana/wallet-adapter-react-ui/styles.css');
