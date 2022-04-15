@@ -1,15 +1,16 @@
-import {BoxKeyPair, randomBytes, secretbox, sign, SignKeyPair} from "tweetnacl";
+import {randomBytes, secretbox, sign, SignKeyPair} from "tweetnacl";
 import {convertKeyPair} from "ed2curve-esm";
 import type {SignWallet} from "./wallet";
 import * as crypto from "crypto";
 import * as base64 from "@stablelib/base64";
+import * as utf8 from "@stablelib/utf8";
+
 
 const PUBLIC_STRING_LENGTH = 32;
 export const newNonce = () => randomBytes(secretbox.nonceLength);
 
 // Generate a string that will seed the "lexi magic". This is assumed to be public knowledge.
-export const publicString = base64.encode(randomBytes(PUBLIC_STRING_LENGTH));
-console.log("THE PUBLIC STRING IS: " + publicString);
+export const singleUsePublicString = base64.encode(randomBytes(PUBLIC_STRING_LENGTH));
 
 /**
  * The "normal" way to generate a symmetric key pair
@@ -34,13 +35,11 @@ export class SignWalletWithKey implements SignWallet {
 /**
  * The "lexi magic":
  * Sign and hash a non-secret public string with an asymmetric secret key, creating the secret for the encryption key
- * @param publicString
  * @param signer
+ * @param publicString
  */
-export const generateKeyFromSignature = async (publicString: string, signer: SignWallet): Promise<Uint8Array> => {
-  // Hash and sign the non-secret public string
-  const publicHash = crypto.createHash("sha256").update(publicString).digest();
-  const secret = await signer.signMessage(publicHash);
+export const generateKeyFromSignature = async (signer: SignWallet, publicString: string): Promise<Uint8Array> => {
+  const secret = await signer.signMessage(utf8.encode(publicString));
 
   // Hash the signature to standardise it to 32 bytes
   // using tweetnacl for hashing creates a 64 byte hash, so we use the native crypto lib here instead
@@ -48,8 +47,8 @@ export const generateKeyFromSignature = async (publicString: string, signer: Sig
   return crypto.createHash('sha256').update(secret).digest();
 };
 
-export const generateX25519KeyPairFromSignature = async (publicString: string, signer: SignWallet): Promise<BoxKeyPair> => {
-  const key = await generateKeyFromSignature(publicString, signer);
+export const generateX25519KeyPairFromSignature = async (signer: SignWallet, publicString: string): Promise<nacl.BoxKeyPair> => {
+  const key = await generateKeyFromSignature(signer, publicString);
   const ed25519Keypair = sign.keyPair.fromSeed(key);
   return convertKeyPair(ed25519Keypair)
 };

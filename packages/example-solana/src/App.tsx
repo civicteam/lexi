@@ -14,7 +14,7 @@ import {
   TorusWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
 import { clusterApiUrl } from '@solana/web3.js';
-import {LexiWallet} from "lexi";
+import {LexiWallet} from "@civic/lexi";
 
 require('@solana/wallet-adapter-react-ui/styles.css');
 
@@ -59,6 +59,7 @@ const Context: FC<{ children: ReactNode }> = ({ children }) => {
 };
 
 const Content: FC = () => {
+  const [seed, setSeed] = useState("secret")
   const [input, setInput] = useState("")
   const [output, setOutput] = useState("")
   const wallet = useWallet();
@@ -74,9 +75,9 @@ const Content: FC = () => {
           }
         },
       }
-      return new LexiWallet(signWallet, "did:sol:" + wallet.publicKey.toBase58())
+      return new LexiWallet(signWallet, "did:sol:" + wallet.publicKey.toBase58(), { publicSigningString : seed})
     }
-  }, [wallet])
+  }, [wallet, seed])
 
   const encrypt = useCallback(async () => {
     lexi?.encryptForMe({ message: input }).then(setOutput)
@@ -98,6 +99,9 @@ const Content: FC = () => {
     <div className="flex justify-center items-center flex-wrap w-1/2 mx-auto">
       <div className="w-full pt-3">
         <h1 className="text-center text-3xl">Encrypt</h1>
+      </div>
+      <div className="w-full text-center pt-3 text-gray-800">
+        <input className="text-center" value={seed} onChange={(e) => setSeed(e.target.value)} />
       </div>
       <div className="w-full text-center pt-3 text-gray-800">
         <textarea onChange={(e) => setInput(e.target.value)}/>

@@ -2,10 +2,18 @@ import type {DIDDocument, DIDResolutionResult, VerificationMethod} from "did-res
 import {decode, encode} from "bs58";
 import {convertPublicKey} from "ed2curve-esm";
 import axios from "axios";
-import {generateX25519KeyPairFromSignature, publicString} from "./key";
+import {generateX25519KeyPairFromSignature, singleUsePublicString} from "./key";
 import type {SignWallet} from "./wallet";
 
-const augmentDIDmainKeyToKeyAgreement = async (didDocument: DIDDocument): Promise<DIDDocument> => {
+export type LexiSignOptions = {
+  publicSigningString?: string
+}
+
+export type LexiOptions = LexiSignOptions & {
+  resolve?: Resolver
+}
+
+const augmentDIDMainKeyToKeyAgreement = async (didDocument: DIDDocument): Promise<DIDDocument> => {
   // key agreement key already exists, so we can use it
   if (didDocument.keyAgreement && didDocument.keyAgreement.length) return didDocument;
 
@@ -28,8 +36,9 @@ const augmentDIDmainKeyToKeyAgreement = async (didDocument: DIDDocument): Promis
   }
 };
 
-const augmentDIDLexi = (signer: SignWallet) => async (didDocument: DIDDocument): Promise<DIDDocument> => {
-  const lexiKeypair = await generateX25519KeyPairFromSignature(publicString, signer);
+const augmentDIDLexi = (signer: SignWallet, options: LexiSignOptions = {}) => async (didDocument: DIDDocument): Promise<DIDDocument> => {
+  const publicSigningString = options.publicSigningString || singleUsePublicString;
+  const lexiKeypair = await generateX25519KeyPairFromSignature(signer, publicSigningString);
   const lexiKey = {
     id: 'lexi',
     type: 'X25519KeyAgreementKey2019',
@@ -48,7 +57,7 @@ const augmentDIDLexi = (signer: SignWallet) => async (didDocument: DIDDocument):
   }
 };
 
-type Resolver = (didUrl: string) => Promise<DIDResolutionResult>
+export type Resolver = (didUrl: string) => Promise<DIDResolutionResult>
 type AugmentDocument = (didDocument: DIDDocument) => Promise<DIDDocument>;
 
 const augmentedResolver = (resolve: Resolver, augmentDocument: AugmentDocument):Resolver =>
@@ -62,12 +71,12 @@ const augmentedResolver = (resolve: Resolver, augmentDocument: AugmentDocument):
     }
   }
 
-export const mainKeyToKeyAgreementResolver = (resolve: Resolver) => augmentedResolver(resolve, augmentDIDmainKeyToKeyAgreement);
+export const mainKeyToKeyAgreementResolver = (resolve: Resolver) => augmentedResolver(resolve, augmentDIDMainKeyToKeyAgreement);
 
-export const lexiResolver = (resolve: Resolver, signer: SignWallet) => augmentedResolver(resolve, augmentDIDLexi(signer));
+export const lexiResolver = (resolve: Resolver, signer: SignWallet, options?: LexiSignOptions) => augmentedResolver(resolve, augmentDIDLexi(signer, options));
 
 export const simpleResolver = async (did: string): Promise<DIDResolutionResult> => axios
   .get<DIDResolutionResult>('https://did.civic.com/1.0/identifiers/' + did)
   .then(res => res.data)
 
-export const resolveDID = mainKeyToKeyAgreementResolver(simpleResolver);
+export const resolveDID = simpleResolver // mainKeyToKeyAgreementResolver(simpleResolver);

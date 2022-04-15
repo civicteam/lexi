@@ -1,7 +1,7 @@
 import {secretbox} from "tweetnacl";
 import {createJWE, decryptJWE, JWE, resolveX25519Encrypters, x25519Decrypter} from "did-jwt";
-import {lexiResolver, resolveDID} from "./did";
-import {generateX25519KeyPairFromSignature, newNonce, publicString} from "./key";
+import {LexiOptions, lexiResolver, resolveDID} from "./did";
+import {generateX25519KeyPairFromSignature, newNonce, singleUsePublicString} from "./key";
 import type {SignWallet} from './wallet';
 import * as base64 from "@stablelib/base64";
 import * as utf8 from "@stablelib/utf8";
@@ -46,14 +46,17 @@ export const encryptForDid = async (json: Record<string, unknown>, recipient: st
  * @param json
  * @param me
  * @param signer
+ * @param options
  */
-export const encryptForMe = async (json: Record<string, unknown>, me: string, signer: SignWallet): Promise<JWE> => {
-  const resolve = lexiResolver(resolveDID, signer);
-  return encryptForDid(json, me, resolve);
+export const encryptForMe = async (json: Record<string, unknown>, me: string, signer: SignWallet, options: LexiOptions): Promise<JWE> => {
+  const resolve = options.resolve || resolveDID;
+  const lexiResolve = lexiResolver(resolve, signer, options);
+  return encryptForDid(json, me, lexiResolve);
 }
 
-export const decryptJWEWithLexi = async (jwe: JWE, signer: SignWallet): Promise<Record<string, unknown>> => {
-  const lexiKeypair = await generateX25519KeyPairFromSignature(publicString, signer);
+export const decryptJWEWithLexi = async (jwe: JWE, signer: SignWallet, options: LexiOptions): Promise<Record<string, unknown>> => {
+  const publicSigningString = options.publicSigningString || singleUsePublicString;
+  const lexiKeypair = await generateX25519KeyPairFromSignature(signer, publicSigningString);
   const decrypter = x25519Decrypter(lexiKeypair.secretKey)
   const decrypted = await decryptJWE(jwe,decrypter)
   return JSON.parse(utf8.decode(decrypted));
