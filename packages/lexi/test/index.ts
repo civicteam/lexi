@@ -3,7 +3,7 @@ import { encode } from "bs58";
 import { SignWalletWithKey } from "../src/lib/key";
 import { LexiWallet } from "../src";
 
-(async () => {
+async function networkTests() {
   // Create an asymmetric signing key pair. This mimics the user's crypto wallet
   const signKey = sign.keyPair();
   const signer = new SignWalletWithKey(signKey);
@@ -21,4 +21,12 @@ import { LexiWallet } from "../src";
   const decrypted = await lexiWallet.decrypt(encryptedWithWallet);
 
   console.log(decrypted, obj); // should be shallow equal
-})().catch(console.error);
+}
+
+async function test() {
+  // FIXME(sneak): the test suite should work without requiring network
+  // see https://github.com/civicteam/lexi/issues/1
+  networkTests();
+}
+
+test().catch(console.error);
