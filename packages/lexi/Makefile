@@ -1,0 +1,2 @@
+fmt:
+	prettier -w .
