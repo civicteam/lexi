@@ -1,6 +1,10 @@
-import type {PersonalEncryptionWallet, SignWallet} from "../lib/wallet";
-import {decryptJWEWithLexi, encryptForDid, encryptForMe} from "../lib/encrypt";
-import type {LexiOptions} from "../lib/did";
+import type { PersonalEncryptionWallet, SignWallet } from "../lib/wallet";
+import {
+  decryptJWEWithLexi,
+  encryptForDid,
+  encryptForMe,
+} from "../lib/encrypt";
+import type { LexiOptions } from "../lib/did";
 
 export class LexiWallet implements PersonalEncryptionWallet, SignWallet {
   private wallet: SignWallet;
@@ -14,15 +18,23 @@ export class LexiWallet implements PersonalEncryptionWallet, SignWallet {
   }
 
   decrypt(cyphertext: string): Promise<Record<string, unknown>> {
-    return decryptJWEWithLexi(JSON.parse(cyphertext), this.wallet, this.options);
+    return decryptJWEWithLexi(
+      JSON.parse(cyphertext),
+      this.wallet,
+      this.options
+    );
   }
 
   encrypt(plaintext: Record<string, unknown>, did: string): Promise<string> {
-    return encryptForDid(plaintext, did, this.options.resolve).then(JSON.stringify);
+    return encryptForDid(plaintext, did, this.options.resolve).then(
+      JSON.stringify
+    );
   }
 
   encryptForMe(plaintext: Record<string, unknown>): Promise<string> {
-    return encryptForMe(plaintext, this.myDID, this.wallet, this.options).then(JSON.stringify);
+    return encryptForMe(plaintext, this.myDID, this.wallet, this.options).then(
+      JSON.stringify
+    );
   }
 
   signMessage(message: Uint8Array): Promise<Uint8Array> {
