@@ -1,7 +1,7 @@
 import { sign } from "tweetnacl";
+import { encode } from "bs58";
 import { SignWalletWithKey } from "../src/lib/key";
 import { LexiWallet } from "../src";
-import { encode } from "bs58";
 
 (async () => {
   // Create an asymmetric signing key pair. This mimics the user's crypto wallet
@@ -17,7 +17,6 @@ import { encode } from "bs58";
 
   // encrypt and decrypt using lexi-aware wallet
   const lexiWallet = new LexiWallet(signer, me);
-
   const encryptedWithWallet = await lexiWallet.encryptForMe(obj);
   const decrypted = await lexiWallet.decrypt(encryptedWithWallet);
 
