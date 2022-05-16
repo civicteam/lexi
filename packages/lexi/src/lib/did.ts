@@ -119,7 +119,7 @@ export const simpleResolver = async (
   did: string
 ): Promise<DIDResolutionResult> =>
   axios
-    .get<DIDResolutionResult>("https://did.civic.com/1.0/identifiers/" + did)
-    .then((res) => res.data) as Promise<DIDResolutionResult>;
+    .get("https://did.civic.com/1.0/identifiers/" + did)
+    .then<DIDResolutionResult>((res) => res.data);
 
 export const resolveDID = simpleResolver; // mainKeyToKeyAgreementResolver(simpleResolver);

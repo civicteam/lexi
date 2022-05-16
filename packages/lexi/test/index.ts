@@ -1,6 +1,7 @@
 import { sign } from "tweetnacl";
 import { SignWalletWithKey } from "../src/lib/key";
 import { LexiWallet } from "../src";
+import { encode } from "bs58";
 
 (async () => {
   // Create an asymmetric signing key pair. This mimics the user's crypto wallet
@@ -8,7 +9,7 @@ import { LexiWallet } from "../src";
   const signer = new SignWalletWithKey(signKey);
 
   // derive my did from this signing key
-  const me = "did:sol:devnet:BdnZRVycP4Hh3SB87jtusoQ6FQQ1XetUh68WWjaA8bxr";
+  const me = "did:sol:" + encode(signKey.publicKey);
   console.log("My DID: " + me);
 
   // The data we want to encrypt
