@@ -1819,11 +1819,6 @@
   resolved "https://registry.yarnpkg.com/@stablelib/aead/-/aead-1.0.1.tgz#c4b1106df9c23d1b867eb9b276d8f42d5fc4c0c3"
   integrity sha512-q39ik6sxGHewqtO0nP4BuSe3db5G1fEJE8ukvngS2gLkBXyy6E7pLubhbYgnkDFv6V8cWaxcE4Xn0t6LWcJkyg==
 
-"@stablelib/base64@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@stablelib/base64/-/base64-1.0.1.tgz#bdfc1c6d3a62d7a3b7bbc65b6cce1bb4561641be"
-  integrity sha512-1bnPQqSxSuc3Ii6MhBysoWCg58j97aUjuCSZrGSmDxNqtytIi0k8utUenAwTZN4V5mXXYGsVUI9zeBqy+jBOSQ==
-
 "@stablelib/binary@^1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@stablelib/binary/-/binary-1.0.1.tgz#c5900b94368baf00f811da5bdb1610963dfddf7f"
@@ -1920,11 +1915,6 @@
     "@stablelib/binary" "^1.0.1"
     "@stablelib/hash" "^1.0.1"
     "@stablelib/wipe" "^1.0.1"
-
-"@stablelib/utf8@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@stablelib/utf8/-/utf8-1.0.1.tgz#fd5e7ad353b7e3cd1ce85e49099360e57693cfd1"
-  integrity sha512-FrYD1xadah/TtAP6VJ04lDD5h9rdDj/d8wH/jMYTtHqZBv9z2btdvEU8vTxdjdkFmo1b/BH+t3R1wi/mYhCCNg==
 
 "@stablelib/wipe@^1.0.1":
   version "1.0.1"
@@ -3101,13 +3091,6 @@ axios@^0.21.0:
   dependencies:
     follow-redirects "^1.14.0"
 
-axios@^0.26.1:
-  version "0.26.1"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-0.26.1.tgz#1ede41c51fcf51bbbd6fd43669caaa4f0495aaa9"
-  integrity sha512-fPwcX4EvnSHuInCMItEhAGnaSEXRBjtzh9fOtsE6E1G6p7vl7edEeZe11QHf18+6+9gR5PbKV/sGKNaD8YaMeA==
-  dependencies:
-    follow-redirects "^1.14.8"
-
 axobject-query@^2.2.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/axobject-query/-/axobject-query-2.2.0.tgz#943d47e10c0b704aa42275e20edf3722648989be"
@@ -3267,11 +3250,6 @@ base-x@^3.0.2:
   integrity sha512-H7JU6iBHTal1gp56aKoaa//YUxEaAOUiydvrV/pILqIHXTtqxSkATOnDA2u+jZ/61sD+L/412+7kzXRtWukhpQ==
   dependencies:
     safe-buffer "^5.0.1"
-
-base-x@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/base-x/-/base-x-4.0.0.tgz#d0e3b7753450c73f8ad2389b5c018a4af7b2224a"
-  integrity sha512-FuwxlW4H5kh37X/oW59pwTzzTKRzfrrQwhmyspRM7swOEZcHtDZSCt45U6oKgtuFE+WYPblePMVIPR4RZrh/hw==
 
 base64-js@^1.3.1:
   version "1.5.1"
@@ -3498,13 +3476,6 @@ bs58@^4.0.0, bs58@^4.0.1:
   integrity sha1-vhYedsNU9veIrkBx9j806MTwpCo=
   dependencies:
     base-x "^3.0.2"
-
-bs58@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/bs58/-/bs58-5.0.0.tgz#865575b4d13c09ea2a84622df6c8cbeb54ffc279"
-  integrity sha512-r+ihvQJvahgYT50JD05dyJNKlmmSlMoOGwn1lCcEzanPglg7TxYjioQUYehQ9mAR/+hOSd2jRc/Z2y5UxBymvQ==
-  dependencies:
-    base-x "^4.0.0"
 
 bs58check@^2.1.2:
   version "2.1.2"
@@ -4364,7 +4335,7 @@ did-jwt@^6.0.0:
     multiformats "^9.6.4"
     uint8arrays "^3.0.0"
 
-did-resolver@^3.1.5, did-resolver@^3.2.0:
+did-resolver@^3.1.5:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/did-resolver/-/did-resolver-3.2.0.tgz#b89edd0dd70ad6f1c65ca1285472e021c2239707"
   integrity sha512-8YiTRitfGt9hJYDIzjc254gXgJptO4zq6Q2BMZMNqkbCf9EFkV6BD4QIh5BUF4YjBglBgJY+duQRzO3UZAlZsw==
@@ -4518,13 +4489,6 @@ duplexer@^0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/duplexer/-/duplexer-0.1.2.tgz#3abe43aef3835f8ae077d136ddce0f276b0400e6"
   integrity sha512-jtD6YG370ZCIi/9GTaJKQxWTZD045+4R4hTk/x1UyoqadyJ9x9CgSi1RlVDQF8U2sxLLSnFkCaMihqljHIWgMg==
-
-ed2curve-esm@^0.3.0-alpha-1:
-  version "0.3.0-alpha-1"
-  resolved "https://registry.yarnpkg.com/ed2curve-esm/-/ed2curve-esm-0.3.0-alpha-1.tgz#67a5722ea97976c3310aeaf0990a2b58ee383aef"
-  integrity sha512-Ydrqcf0NwKUBT4gL0Nnxp8/O5NG8iatN+/zbEgs/7eMGjgSVbgfE1YfWld2qYnoNIxOQvSWOFy5uBoaL3jCanw==
-  dependencies:
-    tweetnacl "^1.0.1"
 
 ee-first@1.1.1:
   version "1.1.1"
@@ -5260,7 +5224,7 @@ flatted@^3.1.0:
   resolved "https://registry.yarnpkg.com/flatted/-/flatted-3.2.5.tgz#76c8584f4fc843db64702a6bd04ab7a8bd666da3"
   integrity sha512-WIWGi2L3DyTUvUrwRKgGi9TwxQMUEqPOPQBVi71R96jZXJdFskXEmf54BoZaS1kknGODoIGASGEzBUYdyMCBJg==
 
-follow-redirects@^1.0.0, follow-redirects@^1.14.0, follow-redirects@^1.14.8:
+follow-redirects@^1.0.0, follow-redirects@^1.14.0:
   version "1.14.9"
   resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.14.9.tgz#dd4ea157de7bfaf9ea9b3fbd85aa16951f78d8d7"
   integrity sha512-MQDfihBQYMcyy5dhRDJUHcw7lb2Pv/TuE6xP1vyraLukNDHKbDxDNaOE3NbCAdKQApno+GPRyo1YAp89yCjK4w==
@@ -6740,19 +6704,6 @@ levn@~0.3.0:
   dependencies:
     prelude-ls "~1.1.2"
     type-check "~0.3.2"
-
-lexi@../lexi-v0.0.1.tgz:
-  version "0.0.1"
-  resolved "../lexi-v0.0.1.tgz#a8153b17d10e0b002cd47cee3ff117c75a639953"
-  dependencies:
-    "@stablelib/base64" "^1.0.1"
-    "@stablelib/utf8" "^1.0.1"
-    axios "^0.26.1"
-    bs58 "^5.0.0"
-    did-jwt "^6.0.0"
-    did-resolver "^3.2.0"
-    ed2curve-esm "^0.3.0-alpha-1"
-    tweetnacl "^1.0.3"
 
 lilconfig@^2.0.3, lilconfig@^2.0.5:
   version "2.0.5"
@@ -9484,7 +9435,7 @@ tsutils@^3.21.0:
   dependencies:
     tslib "^1.8.1"
 
-tweetnacl@^1.0.0, tweetnacl@^1.0.1, tweetnacl@^1.0.3:
+tweetnacl@^1.0.0:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/tweetnacl/-/tweetnacl-1.0.3.tgz#ac0af71680458d8a6378d0d0d050ab1407d35596"
   integrity sha512-6rt+RN7aOi1nGMyC4Xa5DdYiukl2UWCbcJft7YhxReBGQD7OAM8Pbxw6YMo4r2diNEA8FEmu32YOn9rhaiE5yw==

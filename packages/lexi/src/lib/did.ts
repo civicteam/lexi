@@ -1,11 +1,12 @@
+import axios from "axios";
+import { decode, encode } from "bs58";
 import type {
   DIDDocument,
   DIDResolutionResult,
   VerificationMethod,
 } from "did-resolver";
-import { decode, encode } from "bs58";
 import { convertPublicKey } from "ed2curve-esm";
-import axios from "axios";
+import type EncryptionKeyBox from "./encryption_key_box";
 import {
   generateX25519KeyPairFromSignature,
   singleUsePublicString,
@@ -51,18 +52,26 @@ const augmentDIDMainKeyToKeyAgreement = async (
 };
 
 const augmentDIDLexi =
-  (signer: SignWallet, options: LexiSignOptions = {}) =>
+  (
+    signer: SignWallet,
+    encryptionKeyBox: EncryptionKeyBox,
+    options: LexiSignOptions = {}
+  ) =>
   async (didDocument: DIDDocument): Promise<DIDDocument> => {
     const publicSigningString =
       options.publicSigningString || singleUsePublicString;
-    const lexiKeypair = await generateX25519KeyPairFromSignature(
-      signer,
-      publicSigningString
-    );
+
+    if (encryptionKeyBox.encryptionKey === null) {
+      encryptionKeyBox.encryptionKey = await generateX25519KeyPairFromSignature(
+        signer,
+        publicSigningString
+      );
+    }
+
     const lexiKey = {
       id: "lexi",
       type: "X25519KeyAgreementKey2019",
-      publicKeyBase58: encode(lexiKeypair.publicKey),
+      publicKeyBase58: encode(encryptionKeyBox.encryptionKey.publicKey),
     } as VerificationMethod;
 
     const keyAgreement = didDocument.keyAgreement || [];
@@ -97,14 +106,20 @@ export const mainKeyToKeyAgreementResolver = (resolve: Resolver) =>
 export const lexiResolver = (
   resolve: Resolver,
   signer: SignWallet,
+  encryptionKey: EncryptionKeyBox,
   options?: LexiSignOptions
-) => augmentedResolver(resolve, augmentDIDLexi(signer, options));
+) => {
+  return augmentedResolver(
+    resolve,
+    augmentDIDLexi(signer, encryptionKey, options)
+  );
+};
 
 export const simpleResolver = async (
   did: string
 ): Promise<DIDResolutionResult> =>
   axios
     .get<DIDResolutionResult>("https://did.civic.com/1.0/identifiers/" + did)
-    .then((res) => res.data);
+    .then((res) => res.data) as Promise<DIDResolutionResult>;
 
 export const resolveDID = simpleResolver; // mainKeyToKeyAgreementResolver(simpleResolver);
