@@ -62,6 +62,7 @@ export const encryptForDid = async (
  * @param me
  * @param signer
  * @param options
+ * @param encryptionKey
  */
 export const encryptForMe = async (
   json: Record<string, unknown>,
@@ -83,13 +84,14 @@ export const decryptJWEWithLexi = async (
 ): Promise<Record<string, unknown>> => {
   const publicSigningString =
     options.publicSigningString || singleUsePublicString;
-  if (encryptionKeyBox.encryptionKey === null) {
-    encryptionKeyBox.encryptionKey = await generateX25519KeyPairFromSignature(
-      signer,
-      publicSigningString
-    );
-  }
-  const decrypter = x25519Decrypter(encryptionKeyBox.encryptionKey.secretKey);
+
+  const keyPair = await generateX25519KeyPairFromSignature(
+    signer,
+    publicSigningString,
+    encryptionKeyBox
+  );
+
+  const decrypter = x25519Decrypter(keyPair.secretKey);
   const decrypted = await decryptJWE(jwe, decrypter);
   return JSON.parse(utf8.decode(decrypted));
 };

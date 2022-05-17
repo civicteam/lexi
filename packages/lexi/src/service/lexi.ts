@@ -1,11 +1,15 @@
-import type { PersonalEncryptionWallet, SignWallet } from "../lib/wallet";
+import type { LexiOptions } from "../lib/did";
 import {
   decryptJWEWithLexi,
   encryptForDid,
   encryptForMe,
 } from "../lib/encrypt";
-import type { LexiOptions } from "../lib/did";
 import EncryptionKeyBox from "../lib/encryption_key_box";
+import {
+  generateX25519KeyPairFromSignature,
+  singleUsePublicString,
+} from "../lib/key";
+import type { PersonalEncryptionWallet, SignWallet } from "../lib/wallet";
 
 export class LexiWallet implements PersonalEncryptionWallet, SignWallet {
   private wallet: SignWallet;
@@ -13,11 +17,27 @@ export class LexiWallet implements PersonalEncryptionWallet, SignWallet {
   private options: LexiOptions;
   private encryptionKeyBox: EncryptionKeyBox;
 
-  constructor(wallet: SignWallet, myDID: string, options: LexiOptions = {}) {
+  constructor(
+    wallet: SignWallet,
+    myDID: string,
+    options: LexiOptions = {},
+    generateKeyOnInit: boolean = false
+  ) {
     this.wallet = wallet;
     this.myDID = myDID;
     this.options = options;
     this.encryptionKeyBox = new EncryptionKeyBox();
+
+    if (generateKeyOnInit) {
+      const publicSigningString =
+        this.options.publicSigningString || singleUsePublicString;
+
+      generateX25519KeyPairFromSignature(
+        this.wallet,
+        publicSigningString,
+        this.encryptionKeyBox
+      );
+    }
   }
 
   decrypt(cyphertext: string): Promise<Record<string, unknown>> {

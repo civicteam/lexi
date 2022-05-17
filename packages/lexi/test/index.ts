@@ -16,7 +16,7 @@ import { LexiWallet } from "../src";
   const obj = { hello: "world" };
 
   // encrypt and decrypt using lexi-aware wallet
-  const lexiWallet = new LexiWallet(signer, me);
+  const lexiWallet = new LexiWallet(signer, me, {}, true);
   const encryptedWithWallet = await lexiWallet.encryptForMe(obj);
   const decrypted = await lexiWallet.decrypt(encryptedWithWallet);
 
