@@ -1,4 +1,5 @@
-import { secretbox } from "tweetnacl";
+import * as base64 from "@stablelib/base64";
+import * as utf8 from "@stablelib/utf8";
 import {
   createJWE,
   decryptJWE,
@@ -6,15 +7,15 @@ import {
   resolveX25519Encrypters,
   x25519Decrypter,
 } from "did-jwt";
+import { secretbox } from "tweetnacl";
 import { LexiOptions, lexiResolver, resolveDID } from "./did";
+import type EncryptionKeyBox from "./encryption_key_box";
 import {
   generateX25519KeyPairFromSignature,
   newNonce,
   singleUsePublicString,
 } from "./key";
 import type { SignWallet } from "./wallet";
-import * as base64 from "@stablelib/base64";
-import * as utf8 from "@stablelib/utf8";
 
 /**
  * Symmetric key encryption code taken from https://github.com/dchest/tweetnacl-js/wiki/Examples#secretbox
@@ -66,25 +67,29 @@ export const encryptForMe = async (
   json: Record<string, unknown>,
   me: string,
   signer: SignWallet,
-  options: LexiOptions
+  options: LexiOptions,
+  encryptionKey: EncryptionKeyBox
 ): Promise<JWE> => {
   const resolve = options.resolve || resolveDID;
-  const lexiResolve = lexiResolver(resolve, signer, options);
+  const lexiResolve = lexiResolver(resolve, signer, encryptionKey, options);
   return encryptForDid(json, me, lexiResolve);
 };
 
 export const decryptJWEWithLexi = async (
   jwe: JWE,
   signer: SignWallet,
+  encryptionKeyBox: EncryptionKeyBox,
   options: LexiOptions
 ): Promise<Record<string, unknown>> => {
   const publicSigningString =
     options.publicSigningString || singleUsePublicString;
-  const lexiKeypair = await generateX25519KeyPairFromSignature(
-    signer,
-    publicSigningString
-  );
-  const decrypter = x25519Decrypter(lexiKeypair.secretKey);
+  if (encryptionKeyBox.encryptionKey === null) {
+    encryptionKeyBox.encryptionKey = await generateX25519KeyPairFromSignature(
+      signer,
+      publicSigningString
+    );
+  }
+  const decrypter = x25519Decrypter(encryptionKeyBox.encryptionKey.secretKey);
   const decrypted = await decryptJWE(jwe, decrypter);
   return JSON.parse(utf8.decode(decrypted));
 };
