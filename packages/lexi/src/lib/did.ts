@@ -28,13 +28,16 @@ const augmentDIDMainKeyToKeyAgreement = async (
   if (didDocument.keyAgreement && didDocument.keyAgreement.length)
     return didDocument;
 
-  if (!didDocument.publicKey || !didDocument.publicKey.length) {
+  if (
+    !didDocument.verificationMethod ||
+    !didDocument.verificationMethod.length
+  ) {
     throw Error(
       "Cannot augment DID document for x25519. The document has no keys"
     );
   }
 
-  const keyAgreementKeys = didDocument.publicKey.map((key) => ({
+  const keyAgreementKeys = didDocument.verificationMethod.map((key) => ({
     ...key,
     id: key.id + "_keyAgreement",
     type: "X25519KeyAgreementKey2019",
@@ -46,7 +49,7 @@ const augmentDIDMainKeyToKeyAgreement = async (
   // add the new key to the document
   return {
     ...didDocument,
-    publicKey: [...didDocument.publicKey, ...keyAgreementKeys],
+    publicKey: [...didDocument.verificationMethod, ...keyAgreementKeys],
     keyAgreement: keyAgreementKeys.map((key) => key.id),
   };
 };
@@ -61,17 +64,16 @@ const augmentDIDLexi =
     const publicSigningString =
       options.publicSigningString || singleUsePublicString;
 
-    if (encryptionKeyBox.encryptionKey === null) {
-      encryptionKeyBox.encryptionKey = await generateX25519KeyPairFromSignature(
-        signer,
-        publicSigningString
-      );
-    }
+    const keyPair = await generateX25519KeyPairFromSignature(
+      signer,
+      publicSigningString,
+      encryptionKeyBox
+    );
 
     const lexiKey = {
       id: "lexi",
       type: "X25519KeyAgreementKey2019",
-      publicKeyBase58: encode(encryptionKeyBox.encryptionKey.publicKey),
+      publicKeyBase58: encode(keyPair.publicKey),
     } as VerificationMethod;
 
     const keyAgreement = didDocument.keyAgreement || [];

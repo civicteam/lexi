@@ -4,6 +4,7 @@ import type { SignWallet } from "./wallet";
 import * as crypto from "crypto";
 import * as base64 from "@stablelib/base64";
 import * as utf8 from "@stablelib/utf8";
+import type EncryptionKeyBox from "./encryption_key_box";
 
 const PUBLIC_STRING_LENGTH = 32;
 export const newNonce = () => randomBytes(secretbox.nonceLength);
@@ -51,9 +52,13 @@ export const generateKeyFromSignature = async (
 
 export const generateX25519KeyPairFromSignature = async (
   signer: SignWallet,
-  publicString: string
+  publicString: string,
+  encryptionKeyBox: EncryptionKeyBox
 ): Promise<nacl.BoxKeyPair> => {
-  const key = await generateKeyFromSignature(signer, publicString);
-  const ed25519Keypair = sign.keyPair.fromSeed(key);
-  return convertKeyPair(ed25519Keypair);
+  if (encryptionKeyBox.encryptionKey === null) {
+    const key = await generateKeyFromSignature(signer, publicString);
+    const ed25519Keypair = sign.keyPair.fromSeed(key);
+    encryptionKeyBox.encryptionKey = convertKeyPair(ed25519Keypair);
+  }
+  return encryptionKeyBox.encryptionKey;
 };
