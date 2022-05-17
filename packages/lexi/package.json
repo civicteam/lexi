@@ -5,7 +5,7 @@
   "author": "dankelleher",
   "license": "MIT",
   "scripts": {
-    "build": "FORCE_COLOR=1 LOG_LEVEL=error LOCAL=true ts-mocha --paths `test/**/*.ts`",
+    "build": "tsc",
     "test": "FORCE_COLOR=1 LOG_LEVEL=error LOCAL=true nyc ts-mocha --timeout 10000 --paths 'test/**/*.ts'",
     "test:watch": "FORCE_COLOR=1 LOG_LEVEL=error LOCAL=true nyct ts-mocha --timeout 10000 --watch --paths 'test/**/*.ts'"
   },
