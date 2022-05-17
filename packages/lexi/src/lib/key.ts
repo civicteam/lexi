@@ -14,6 +14,13 @@ export const singleUsePublicString = base64.encode(
   randomBytes(PUBLIC_STRING_LENGTH)
 );
 
+// TODO this is not used
+/**
+ * The "normal" way to generate a symmetric key pair
+ */
+// export const generateKey = () =>
+//     base64.encode(randomBytes(secretbox.keyLength));
+
 export class SignWalletWithKey implements SignWallet {
   private signKey: SignKeyPair;
 

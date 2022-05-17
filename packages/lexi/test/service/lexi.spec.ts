@@ -96,7 +96,7 @@ describe("LexiWallet", () => {
         const signer = new SignWalletWithKey(signKey);
 
         // derive my did from this signing key
-        const me = "did:sol:6n853y6agbzauRS9BhkovVF2EuGux4C7iq7RFdZPhYPa";
+        const me = "did:sol:" + encode(signKey.publicKey);
 
         // The data we want to encrypt
         const obj = {hello: "world"};
