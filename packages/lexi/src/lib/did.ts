@@ -1,11 +1,10 @@
 import axios from "axios";
-import { decode, encode } from "bs58";
+import { encode } from "bs58";
 import type {
   DIDDocument,
   DIDResolutionResult,
   VerificationMethod,
 } from "did-resolver";
-import { convertPublicKey } from "ed2curve-esm";
 import type EncryptionKeyBox from "./encryption_key_box";
 import {
   generateX25519KeyPairFromSignature,
@@ -21,44 +20,45 @@ export type LexiOptions = LexiSignOptions & {
   resolve?: Resolver;
 };
 
-const augmentDIDMainKeyToKeyAgreement = async (
-  didDocument: DIDDocument
-): Promise<DIDDocument> => {
-  // key agreement key already exists, so we can use it
-  if (didDocument.keyAgreement && didDocument.keyAgreement.length)
-    return didDocument;
-
-  if (
-    !didDocument.verificationMethod ||
-    !didDocument.verificationMethod.length
-  ) {
-    throw Error(
-      "Cannot augment DID document for x25519. The document has no keys"
-    );
-  }
-
-  const keyAgreementKeys = didDocument.verificationMethod.map((key) => ({
-    ...key,
-    id: key.id + "_keyAgreement",
-    type: "X25519KeyAgreementKey2019",
-    publicKeyBase58: encode(
-      convertPublicKey(decode(key.publicKeyBase58 || ""))
-    ),
-  }));
-
-  // add the new key to the document
-  return {
-    ...didDocument,
-    publicKey: [...didDocument.verificationMethod, ...keyAgreementKeys],
-    keyAgreement: keyAgreementKeys.map((key) => key.id),
-  };
-};
+// TODO not used
+// const augmentDIDMainKeyToKeyAgreement = async (
+//   didDocument: DIDDocument
+// ): Promise<DIDDocument> => {
+//   // key agreement key already exists, so we can use it
+//   if (didDocument.keyAgreement && didDocument.keyAgreement.length)
+//     return didDocument;
+//
+//   if (
+//     !didDocument.verificationMethod ||
+//     !didDocument.verificationMethod.length
+//   ) {
+//     throw Error(
+//       "Cannot augment DID document for x25519. The document has no keys"
+//     );
+//   }
+//
+//   const keyAgreementKeys = didDocument.verificationMethod.map((key) => ({
+//     ...key,
+//     id: key.id + "_keyAgreement",
+//     type: "X25519KeyAgreementKey2019",
+//     publicKeyBase58: encode(
+//       convertPublicKey(decode(key.publicKeyBase58 || ""))
+//     ),
+//   }));
+//
+//   // add the new key to the document
+//   return {
+//     ...didDocument,
+//     publicKey: [...didDocument.verificationMethod, ...keyAgreementKeys],
+//     keyAgreement: keyAgreementKeys.map((key) => key.id),
+//   };
+// };
 
 const augmentDIDLexi =
   (
     signer: SignWallet,
     encryptionKeyBox: EncryptionKeyBox,
-    options: LexiSignOptions = {}
+    options: LexiSignOptions
   ) =>
   async (didDocument: DIDDocument): Promise<DIDDocument> => {
     const publicSigningString =
@@ -102,8 +102,9 @@ const augmentedResolver =
     };
   };
 
-export const mainKeyToKeyAgreementResolver = (resolve: Resolver) =>
-  augmentedResolver(resolve, augmentDIDMainKeyToKeyAgreement);
+// TODO this is not used
+// export const mainKeyToKeyAgreementResolver = (resolve: Resolver) =>
+//   augmentedResolver(resolve, augmentDIDMainKeyToKeyAgreement);
 
 export const lexiResolver = (
   resolve: Resolver,
