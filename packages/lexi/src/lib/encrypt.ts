@@ -11,28 +11,6 @@ import type EncryptionKeyBox from "./encryption_key_box";
 import {generateX25519KeyPairFromSignature, singleUsePublicString,} from "./key";
 import type { SignWallet } from "./wallet";
 
-// TODO this is not used
-/**
- * Symmetric key encryption code taken from https://github.com/dchest/tweetnacl-js/wiki/Examples#secretbox
- * Uses x25519-xsalsa20-poly1305
- * @param json
- * @param key
- */
-// export const encrypt = (
-//   json: Record<string, unknown>,
-//   key: Uint8Array
-// ): string => {
-//   const nonce = newNonce();
-//   const messageUint8 = utf8.encode(JSON.stringify(json));
-//   const box = secretbox(messageUint8, nonce, key);
-//
-//   const fullMessage = new Uint8Array(nonce.length + box.length);
-//   fullMessage.set(nonce);
-//   fullMessage.set(box, nonce.length);
-//
-//   return base64.encode(fullMessage);
-// };
-
 /**
  * Encrypt the payload for the DID
  * @param json
@@ -90,30 +68,3 @@ export const decryptJWEWithLexi = async (
   const decrypted = await decryptJWE(jwe, decrypter);
   return JSON.parse(utf8.decode(decrypted));
 };
-
-// TODO this is not used
-/**
- * Symmetric key decryption code taken from https://github.com/dchest/tweetnacl-js/wiki/Examples#secretbox
- * @param messageWithNonce
- * @param key
- */
-// export const decrypt = (
-//   messageWithNonce: string,
-//   key: Uint8Array
-// ): Record<string, unknown> => {
-//   const messageWithNonceAsUint8Array = base64.decode(messageWithNonce);
-//   const nonce = messageWithNonceAsUint8Array.slice(0, secretbox.nonceLength);
-//   const message = messageWithNonceAsUint8Array.slice(
-//     secretbox.nonceLength,
-//     messageWithNonce.length
-//   );
-//
-//   const decrypted = secretbox.open(message, nonce, key);
-//
-//   if (!decrypted) {
-//     throw new Error("Could not decrypt message");
-//   }
-//
-//   const base64DecryptedMessage = utf8.decode(decrypted);
-//   return JSON.parse(base64DecryptedMessage);
-// };

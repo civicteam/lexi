@@ -20,40 +20,6 @@ export type LexiOptions = LexiSignOptions & {
   resolve?: Resolver;
 };
 
-// TODO not used
-// const augmentDIDMainKeyToKeyAgreement = async (
-//   didDocument: DIDDocument
-// ): Promise<DIDDocument> => {
-//   // key agreement key already exists, so we can use it
-//   if (didDocument.keyAgreement && didDocument.keyAgreement.length)
-//     return didDocument;
-//
-//   if (
-//     !didDocument.verificationMethod ||
-//     !didDocument.verificationMethod.length
-//   ) {
-//     throw Error(
-//       "Cannot augment DID document for x25519. The document has no keys"
-//     );
-//   }
-//
-//   const keyAgreementKeys = didDocument.verificationMethod.map((key) => ({
-//     ...key,
-//     id: key.id + "_keyAgreement",
-//     type: "X25519KeyAgreementKey2019",
-//     publicKeyBase58: encode(
-//       convertPublicKey(decode(key.publicKeyBase58 || ""))
-//     ),
-//   }));
-//
-//   // add the new key to the document
-//   return {
-//     ...didDocument,
-//     publicKey: [...didDocument.verificationMethod, ...keyAgreementKeys],
-//     keyAgreement: keyAgreementKeys.map((key) => key.id),
-//   };
-// };
-
 const augmentDIDLexi =
   (
     signer: SignWallet,
@@ -102,10 +68,6 @@ const augmentedResolver =
     };
   };
 
-// TODO this is not used
-// export const mainKeyToKeyAgreementResolver = (resolve: Resolver) =>
-//   augmentedResolver(resolve, augmentDIDMainKeyToKeyAgreement);
-
 export const lexiResolver = (
   resolve: Resolver,
   signer: SignWallet,
@@ -125,4 +87,4 @@ export const simpleResolver = async (
     .get("https://did.civic.com/1.0/identifiers/" + did)
     .then<DIDResolutionResult>((res) => res.data);
 
-export const resolveDID = simpleResolver; // mainKeyToKeyAgreementResolver(simpleResolver);
+export const resolveDID = simpleResolver;
