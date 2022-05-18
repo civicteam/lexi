@@ -12,10 +12,10 @@ import {
 import type { PersonalEncryptionWallet, SignWallet } from "../lib/wallet";
 
 export class LexiWallet implements PersonalEncryptionWallet, SignWallet {
-  private wallet: SignWallet;
+  private readonly wallet: SignWallet;
   private myDID: string;
-  private options: LexiOptions;
-  private encryptionKeyBox: EncryptionKeyBox;
+  private readonly options: LexiOptions;
+  private readonly encryptionKeyBox: EncryptionKeyBox;
 
   constructor(
     wallet: SignWallet,

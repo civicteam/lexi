@@ -1,4 +1,3 @@
-import * as base64 from "@stablelib/base64";
 import * as utf8 from "@stablelib/utf8";
 import {
   createJWE,
@@ -7,36 +6,10 @@ import {
   resolveX25519Encrypters,
   x25519Decrypter,
 } from "did-jwt";
-import { secretbox } from "tweetnacl";
 import { LexiOptions, lexiResolver, resolveDID } from "./did";
 import type EncryptionKeyBox from "./encryption_key_box";
-import {
-  generateX25519KeyPairFromSignature,
-  newNonce,
-  singleUsePublicString,
-} from "./key";
+import {generateX25519KeyPairFromSignature, singleUsePublicString,} from "./key";
 import type { SignWallet } from "./wallet";
-
-/**
- * Symmetric key encryption code taken from https://github.com/dchest/tweetnacl-js/wiki/Examples#secretbox
- * Uses x25519-xsalsa20-poly1305
- * @param json
- * @param key
- */
-export const encrypt = (
-  json: Record<string, unknown>,
-  key: Uint8Array
-): string => {
-  const nonce = newNonce();
-  const messageUint8 = utf8.encode(JSON.stringify(json));
-  const box = secretbox(messageUint8, nonce, key);
-
-  const fullMessage = new Uint8Array(nonce.length + box.length);
-  fullMessage.set(nonce);
-  fullMessage.set(box, nonce.length);
-
-  return base64.encode(fullMessage);
-};
 
 /**
  * Encrypt the payload for the DID
@@ -94,30 +67,4 @@ export const decryptJWEWithLexi = async (
   const decrypter = x25519Decrypter(keyPair.secretKey);
   const decrypted = await decryptJWE(jwe, decrypter);
   return JSON.parse(utf8.decode(decrypted));
-};
-
-/**
- * Symmetric key decryption code taken from https://github.com/dchest/tweetnacl-js/wiki/Examples#secretbox
- * @param messageWithNonce
- * @param key
- */
-export const decrypt = (
-  messageWithNonce: string,
-  key: Uint8Array
-): Record<string, unknown> => {
-  const messageWithNonceAsUint8Array = base64.decode(messageWithNonce);
-  const nonce = messageWithNonceAsUint8Array.slice(0, secretbox.nonceLength);
-  const message = messageWithNonceAsUint8Array.slice(
-    secretbox.nonceLength,
-    messageWithNonce.length
-  );
-
-  const decrypted = secretbox.open(message, nonce, key);
-
-  if (!decrypted) {
-    throw new Error("Could not decrypt message");
-  }
-
-  const base64DecryptedMessage = utf8.decode(decrypted);
-  return JSON.parse(base64DecryptedMessage);
 };
