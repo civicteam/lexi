@@ -72,7 +72,7 @@ export const lexiResolver = (
   resolve: Resolver,
   signer: SignWallet,
   encryptionKey: EncryptionKeyBox,
-  options?: LexiSignOptions
+  options: LexiSignOptions
 ) => {
   return augmentedResolver(
     resolve,
