@@ -17,27 +17,19 @@ export class LexiWallet implements PersonalEncryptionWallet, SignWallet {
   private readonly options: LexiOptions;
   private readonly encryptionKeyBox: EncryptionKeyBox;
 
-  constructor(
-    wallet: SignWallet,
-    myDID: string,
-    options: LexiOptions = {},
-    generateKeyOnInit: boolean = false
-  ) {
+  constructor(wallet: SignWallet, myDID: string, options: LexiOptions = {}) {
     this.wallet = wallet;
     this.myDID = myDID;
     this.options = options;
     this.encryptionKeyBox = new EncryptionKeyBox();
+  }
 
-    if (generateKeyOnInit) {
-      const publicSigningString =
-        this.options.publicSigningString || singleUsePublicString;
-
-      generateX25519KeyPairFromSignature(
-        this.wallet,
-        publicSigningString,
-        this.encryptionKeyBox
-      );
-    }
+  async generateKeyForSigning() {
+    await generateX25519KeyPairFromSignature(
+      this.wallet,
+      this.options.publicSigningString || singleUsePublicString,
+      this.encryptionKeyBox
+    );
   }
 
   decrypt(cyphertext: string): Promise<Record<string, unknown>> {
