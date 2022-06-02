@@ -1,4 +1,5 @@
 import {sign} from "tweetnacl";
+
 import {encode} from "bs58";
 import {SignWalletWithKey} from "../../src/lib/key";
 import {LexiWallet} from "../../src/service/lexi";
@@ -53,6 +54,17 @@ describe("LexiWallet", () => {
         }));
     });
     afterEach(() => sandbox.restore());
+    it("We create a lexiWallet and create the derived encryption key", () => {
+        const signKey = sign.keyPair();
+        const signer = new SignWalletWithKey(signKey);
+
+        // derive my did from this signing key
+        const me = "did:sol:" + encode(signKey.publicKey);
+
+        const lexiWallet = new LexiWallet(signer, me, {});
+        lexiWallet.generateKeyForSigning();
+    });
+
     it("We create a LexiWallet that generates a key when initiated", async () => {
         const signKey = sign.keyPair();
         const signer = new SignWalletWithKey(signKey);
@@ -64,7 +76,7 @@ describe("LexiWallet", () => {
         const obj = {hello: "world"};
 
         // encrypt and decrypt using lexi-aware wallet
-        const lexiWallet = new LexiWallet(signer, me, {}, true);
+        const lexiWallet = new LexiWallet(signer, me, {});
         const encryptedWithWallet = await lexiWallet.encryptForMe(obj);
         const decrypted = await lexiWallet.decrypt(encryptedWithWallet);
 
@@ -127,7 +139,7 @@ describe("LexiWallet", () => {
         const obj = {hello: "world"};
 
         // encrypt and decrypt using lexi-aware wallet
-        const lexiWallet = new LexiWallet(signer, me, {}, true);
+        const lexiWallet = new LexiWallet(signer, me, {});
         const encryptedWithWallet = await lexiWallet.encryptForMe(obj);
         const decrypted = await lexiWallet.decrypt(encryptedWithWallet);
 
@@ -148,7 +160,7 @@ describe("LexiWallet", () => {
         const obj = {hello: "world"};
 
         // encrypt and decrypt using lexi-aware wallet
-        const lexiWallet = new LexiWallet(signer, me, {}, true);
+        const lexiWallet = new LexiWallet(signer, me, {});
         const encryptedWithWallet = await lexiWallet.encryptForMe(obj);
         const decrypted = await lexiWallet.decrypt(encryptedWithWallet);
 
