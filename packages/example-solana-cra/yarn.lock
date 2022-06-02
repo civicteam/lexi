@@ -1072,10 +1072,10 @@
     eip1193-provider "^1.0.1"
     js-sha3 "^0.8.0"
 
-"@civic/lexi@^0.0.1":
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/@civic/lexi/-/lexi-0.0.1.tgz#6334810d88fddfbf6f8354e4b70cf6b43e2a98d4"
-  integrity sha512-EblXZoHkrL0SGko3l+KQmusCV/tNb0bkUBe78BhnsWSbN8Y6WrRCBhMZohwKKp4mqtXqyaKHRrUx5OOXh1w8Fw==
+"@civic/lexi@^0.0.5":
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/@civic/lexi/-/lexi-0.0.5.tgz#a49bd33b86654f8b6d3f65234334530e4f220de6"
+  integrity sha512-qUnhErz5URa1A9+mZM1R9MouQcKv0lDCKgAkAaqkpqT/aSm7fumXdQyZ7Zt85vU7kF3OV+joup6nVTQsFl0/Fw==
   dependencies:
     "@stablelib/base64" "^1.0.1"
     "@stablelib/utf8" "^1.0.1"
