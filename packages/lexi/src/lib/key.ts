@@ -14,6 +14,14 @@ export const singleUsePublicString = base64.encode(
   randomBytes(PUBLIC_STRING_LENGTH)
 );
 
+const SHA256D = async (input: Uint8Array): Promise<Uint8Array> => {
+  const first = crypto.createHash("sha256");
+  const second = crypto.createHash("sha256");
+  first.update(input);
+  second.update(await first.digest());
+  return second.digest();
+};
+
 export class SignWalletWithKey implements SignWallet {
   private signKey: SignKeyPair;
 
@@ -36,12 +44,14 @@ export const generateKeyFromSignature = async (
   signer: SignWallet,
   publicString: string
 ): Promise<Uint8Array> => {
-  const secret = await signer.signMessage(utf8.encode(publicString));
-
+  // first we blind the 'publicString' by hashing to ensure we're not
+  // signing arbitrary attacker-provided data:
+  const signatureInput = await SHA256D(utf8.encode(publicString));
+  const signature = await signer.signMessage(signatureInput);
   // Hash the signature to standardise it to 32 bytes
   // using tweetnacl for hashing creates a 64 byte hash, so we use the native crypto lib here instead
   // return hash(secret);
-  return crypto.createHash("sha256").update(secret).digest();
+  return SHA256D(signature);
 };
 
 export const generateX25519KeyPairFromSignature = async (
