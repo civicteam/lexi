@@ -11,7 +11,7 @@ import {
 } from "../lib/key";
 import type { PersonalEncryptionWallet, SignWallet } from "../lib/wallet";
 
-export class LexiWallet implements PersonalEncryptionWallet, SignWallet {
+export class LexiWallet implements PersonalEncryptionWallet {
   private readonly wallet: SignWallet;
   private myDID: string;
   private readonly options: LexiOptions;
@@ -55,9 +55,5 @@ export class LexiWallet implements PersonalEncryptionWallet, SignWallet {
       this.options,
       this.encryptionKeyBox
     ).then(JSON.stringify);
-  }
-
-  signMessage(message: Uint8Array): Promise<Uint8Array> {
-    return this.wallet.signMessage(message);
   }
 }

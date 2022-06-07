@@ -5,6 +5,7 @@ import * as crypto from "crypto";
 import * as base64 from "@stablelib/base64";
 import * as utf8 from "@stablelib/utf8";
 import type EncryptionKeyBox from "./encryption_key_box";
+import {TextEncoder} from "util";
 
 const PUBLIC_STRING_LENGTH = 32;
 export const newNonce = () => randomBytes(secretbox.nonceLength);
@@ -46,7 +47,9 @@ export const generateKeyFromSignature = async (
 ): Promise<Uint8Array> => {
   // first we blind the 'publicString' by hashing to ensure we're not
   // signing arbitrary attacker-provided data:
-  const signatureInput = await SHA256D(utf8.encode(publicString));
+  // base64 encode the message because the raw bytes look a bit weird to users of Civic.me
+  const signatureInput = (new TextEncoder()).encode(base64.encode(await SHA256D(utf8.encode(publicString))));
+
   const signature = await signer.signMessage(signatureInput);
   // Hash the signature to standardise it to 32 bytes
   // using tweetnacl for hashing creates a 64 byte hash, so we use the native crypto lib here instead
