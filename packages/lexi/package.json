@@ -1,6 +1,6 @@
 {
   "name": "@civic/lexi",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "main": "dist/index.js",
   "author": "dankelleher",
   "license": "MIT",
@@ -36,7 +36,7 @@
     "@stablelib/utf8": "^1.0.1",
     "axios": "^0.26.1",
     "bs58": "^5.0.0",
-    "did-jwt": "^6.0.0",
+    "did-jwt": "git+https://github.com/civicteam/did-jwt",
     "did-resolver": "^3.2.0",
     "ed2curve-esm": "^0.3.0-alpha-1",
     "tweetnacl": "^1.0.3"

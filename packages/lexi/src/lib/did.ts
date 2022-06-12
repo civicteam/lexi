@@ -5,15 +5,11 @@ import type {
   DIDResolutionResult,
   VerificationMethod,
 } from "did-resolver";
-import type EncryptionKeyBox from "./encryption_key_box";
-import {
-  generateX25519KeyPairFromSignature,
-  singleUsePublicString,
-} from "./key";
+import { generateX25519KeyPairFromSignature } from "./key";
 import type { SignWallet } from "./wallet";
 
 export type LexiSignOptions = {
-  publicSigningString?: string;
+  friendlyString?: string;
 };
 
 export type LexiOptions = LexiSignOptions & {
@@ -21,19 +17,11 @@ export type LexiOptions = LexiSignOptions & {
 };
 
 const augmentDIDLexi =
-  (
-    signer: SignWallet,
-    encryptionKeyBox: EncryptionKeyBox,
-    options: LexiSignOptions
-  ) =>
+  (signer: SignWallet, signatureInput: string) =>
   async (didDocument: DIDDocument): Promise<DIDDocument> => {
-    const publicSigningString =
-      options.publicSigningString || singleUsePublicString;
-
     const keyPair = await generateX25519KeyPairFromSignature(
       signer,
-      publicSigningString,
-      encryptionKeyBox
+      signatureInput
     );
 
     const lexiKey = {
@@ -71,13 +59,9 @@ const augmentedResolver =
 export const lexiResolver = (
   resolve: Resolver,
   signer: SignWallet,
-  encryptionKey: EncryptionKeyBox,
-  options: LexiSignOptions
+  signatureInput: string
 ) => {
-  return augmentedResolver(
-    resolve,
-    augmentDIDLexi(signer, encryptionKey, options)
-  );
+  return augmentedResolver(resolve, augmentDIDLexi(signer, signatureInput));
 };
 
 export const simpleResolver = async (

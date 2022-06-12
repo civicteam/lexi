@@ -1,9 +1,14 @@
-import React, {FC, ReactNode, useCallback, useMemo, useState} from 'react';
-import './App.css';
-
-import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
-import {ConnectionProvider, useWallet, WalletProvider} from '@solana/wallet-adapter-react';
-import { WalletModalProvider, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { LexiWallet } from "@civic/lexi";
+import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
+import {
+  ConnectionProvider,
+  useWallet,
+  WalletProvider,
+} from "@solana/wallet-adapter-react";
+import {
+  WalletModalProvider,
+  WalletMultiButton,
+} from "@solana/wallet-adapter-react-ui";
 import {
   LedgerWalletAdapter,
   PhantomWalletAdapter,
@@ -12,12 +17,13 @@ import {
   SolletExtensionWalletAdapter,
   SolletWalletAdapter,
   TorusWalletAdapter,
-} from '@solana/wallet-adapter-wallets';
-import { clusterApiUrl } from '@solana/web3.js';
-import {LexiWallet} from "lexi";
+} from "@solana/wallet-adapter-wallets";
+import { clusterApiUrl } from "@solana/web3.js";
+import React, { FC, ReactNode, useCallback, useMemo, useState } from "react";
+import "./App.css";
 
-require('./App.css');
-require('@solana/wallet-adapter-react-ui/styles.css');
+require("./App.css");
+require("@solana/wallet-adapter-react-ui/styles.css");
 
 export const App: FC = () => {
   return (
@@ -60,37 +66,59 @@ const Context: FC<{ children: ReactNode }> = ({ children }) => {
 };
 
 const Content: FC = () => {
-  const [message, setMessage] = useState("")
-  const [encryptedMessage, setEncryptedMessage] = useState("")
+  const [message, setMessage] = useState("");
+  const [encryptedMessage, setEncryptedMessage] = useState("");
+  const [originalMessage, setOriginalMessage] = useState("");
   const wallet = useWallet();
+
+  const friendlyString = "Please sign this message for encryption";
+  const nonce = "base64";
 
   const lexi = useMemo(() => {
     if (wallet && wallet.publicKey) {
       const signWallet = {
         signMessage: (message: Uint8Array) => {
           if (wallet.signMessage) {
-            return wallet.signMessage(message)
+            return wallet.signMessage(message);
           } else {
-            return Promise.reject("Wallet does not support signing")
+            return Promise.reject("Wallet does not support signing");
           }
         },
-      }
-      return new LexiWallet(signWallet, "did:sol:" + wallet.publicKey.toBase58())
+      };
+      return new LexiWallet(
+        signWallet,
+        "did:sol:" + wallet.publicKey.toBase58(),
+        {
+          friendlyString,
+        }
+      );
     }
-  }, [wallet])
+  }, [wallet]);
 
   const encrypt = useCallback(async () => {
-    lexi?.encryptForMe({ message }).then((encryptedMessage: string) => {
-      setEncryptedMessage(encryptedMessage)
-    })
-  }, [message, lexi])
+    lexi?.encryptForMe(message).then((encryptedMessage: string) => {
+      setEncryptedMessage(encryptedMessage);
+    });
+  }, [message, lexi]);
 
-  return <div>
-    <WalletMultiButton />
-    <textarea onChange={(e) => setMessage(e.target.value)}/>
-    <button onClick={encrypt}>Encrypt</button>
-    {encryptedMessage && <textarea value={encryptedMessage}/>}
-  </div>;
+  const decrypt = useCallback(async () => {
+    setOriginalMessage((await lexi?.decrypt(encryptedMessage)) ?? "");
+  }, [lexi, encryptedMessage]);
+
+  return (
+    <div>
+      <WalletMultiButton />
+      <textarea onChange={(e) => setMessage(e.target.value)} />
+      <button onClick={encrypt}>Encrypt</button>
+      {encryptedMessage && <textarea value={encryptedMessage} />}
+      {encryptedMessage && (
+        <>
+          <button onClick={decrypt}>Decrypt</button>
+          {originalMessage}
+        </>
+      )}
+    </div>
+  );
 };
 
 export default App;
