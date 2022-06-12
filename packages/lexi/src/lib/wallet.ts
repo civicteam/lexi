@@ -3,10 +3,10 @@ export interface SignWallet {
 }
 
 interface EncryptionWallet {
-  decrypt(cyphertext: string): Promise<Record<string, unknown>>;
-  encrypt(plaintext: Record<string, unknown>, did: string): Promise<string>;
+  decrypt(cyphertext: string): Promise<string>;
+  encrypt(plainText: string, did: string): Promise<string>;
 }
 
 export interface PersonalEncryptionWallet extends EncryptionWallet {
-  encryptForMe(plaintext: Record<string, unknown>): Promise<string>;
+  encryptForMe(plainText: string): Promise<string>;
 }
