@@ -1072,6 +1072,32 @@
     eip1193-provider "^1.0.1"
     js-sha3 "^0.8.0"
 
+"@civic/lexi@../../packages/lexi":
+  version "0.0.6"
+  dependencies:
+    "@stablelib/base64" "^1.0.1"
+    "@stablelib/utf8" "^1.0.1"
+    axios "^0.26.1"
+    bs58 "^5.0.0"
+    did-jwt "git+https://github.com/civicteam/did-jwt"
+    did-resolver "^3.2.0"
+    ed2curve-esm "^0.3.0-alpha-1"
+    tweetnacl "^1.0.3"
+
+"@civic/lexi@^0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@civic/lexi/-/lexi-0.0.1.tgz#6334810d88fddfbf6f8354e4b70cf6b43e2a98d4"
+  integrity sha512-EblXZoHkrL0SGko3l+KQmusCV/tNb0bkUBe78BhnsWSbN8Y6WrRCBhMZohwKKp4mqtXqyaKHRrUx5OOXh1w8Fw==
+  dependencies:
+    "@stablelib/base64" "^1.0.1"
+    "@stablelib/utf8" "^1.0.1"
+    axios "^0.26.1"
+    bs58 "^5.0.0"
+    did-jwt "^6.0.0"
+    did-resolver "^3.2.0"
+    ed2curve-esm "^0.3.0-alpha-1"
+    tweetnacl "^1.0.3"
+
 "@csstools/normalize.css@*":
   version "12.0.0"
   resolved "https://registry.yarnpkg.com/@csstools/normalize.css/-/normalize.css-12.0.0.tgz#a9583a75c3f150667771f30b60d9f059473e62c4"
@@ -4364,6 +4390,23 @@ did-jwt@^6.0.0:
     multiformats "^9.6.4"
     uint8arrays "^3.0.0"
 
+"did-jwt@git+https://github.com/civicteam/did-jwt":
+  version "6.1.0"
+  resolved "git+https://github.com/civicteam/did-jwt#d4e318df78bd88e3127e62784915c7a334881eb6"
+  dependencies:
+    "@stablelib/ed25519" "^1.0.2"
+    "@stablelib/random" "^1.0.1"
+    "@stablelib/sha256" "^1.0.1"
+    "@stablelib/x25519" "^1.0.2"
+    "@stablelib/xchacha20poly1305" "^1.0.1"
+    bech32 "^2.0.0"
+    canonicalize "^1.0.8"
+    did-resolver "^3.1.5"
+    elliptic "^6.5.4"
+    js-sha3 "^0.8.0"
+    multiformats "^9.6.4"
+    uint8arrays "^3.0.0"
+
 did-resolver@^3.1.5, did-resolver@^3.2.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/did-resolver/-/did-resolver-3.2.0.tgz#b89edd0dd70ad6f1c65ca1285472e021c2239707"
@@ -6740,19 +6783,6 @@ levn@~0.3.0:
   dependencies:
     prelude-ls "~1.1.2"
     type-check "~0.3.2"
-
-lexi@../lexi-v0.0.1.tgz:
-  version "0.0.1"
-  resolved "../lexi-v0.0.1.tgz#a8153b17d10e0b002cd47cee3ff117c75a639953"
-  dependencies:
-    "@stablelib/base64" "^1.0.1"
-    "@stablelib/utf8" "^1.0.1"
-    axios "^0.26.1"
-    bs58 "^5.0.0"
-    did-jwt "^6.0.0"
-    did-resolver "^3.2.0"
-    ed2curve-esm "^0.3.0-alpha-1"
-    tweetnacl "^1.0.3"
 
 lilconfig@^2.0.3, lilconfig@^2.0.5:
   version "2.0.5"

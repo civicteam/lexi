@@ -36,8 +36,7 @@ export class LexiWallet implements PersonalEncryptionWallet, SignWallet {
     return decryptJWEWithLexi(
       JSON.parse(cyphertext),
       this.wallet,
-      this.encryptionKeyBox,
-      this.options
+      this.encryptionKeyBox
     );
   }
 

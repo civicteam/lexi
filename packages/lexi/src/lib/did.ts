@@ -6,10 +6,7 @@ import type {
   VerificationMethod,
 } from "did-resolver";
 import type EncryptionKeyBox from "./encryption_key_box";
-import {
-  generateX25519KeyPairFromSignature,
-  singleUsePublicString,
-} from "./key";
+import { generateX25519KeyPairFromSignature } from "./key";
 import type { SignWallet } from "./wallet";
 
 export type LexiSignOptions = {

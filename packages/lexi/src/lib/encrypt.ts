@@ -16,7 +16,9 @@ import type { SignWallet } from "./wallet";
 
 type EncryptionPackage = {
   signingString: string;
-  jwe: JWE;
+  schema: string;
+  algorithm: string;
+  payload: JWE;
 };
 
 /**
@@ -64,7 +66,9 @@ export const encryptForMe = async (
   );
   return {
     signingString: publicSigningString,
-    jwe: await encryptForDid(json, me, lexiResolve),
+    algorithm: "ED25519",
+    schema: "lexi-encryption-v1",
+    payload: await encryptForDid(json, me, lexiResolve),
   };
 };
 
@@ -82,6 +86,6 @@ export const decryptJWEWithLexi = async (
   );
 
   const decrypter = x25519Decrypter(keyPair.secretKey);
-  const decrypted = await decryptJWE(encryptionPackage.jwe, decrypter);
+  const decrypted = await decryptJWE(encryptionPackage.payload, decrypter);
   return JSON.parse(utf8.decode(decrypted));
 };
