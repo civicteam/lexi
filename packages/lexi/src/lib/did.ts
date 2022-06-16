@@ -24,12 +24,9 @@ const augmentDIDLexi =
   (
     signer: SignWallet,
     encryptionKeyBox: EncryptionKeyBox,
-    options: LexiSignOptions
+    publicSigningString: string
   ) =>
   async (didDocument: DIDDocument): Promise<DIDDocument> => {
-    const publicSigningString =
-      options.publicSigningString || singleUsePublicString;
-
     const keyPair = await generateX25519KeyPairFromSignature(
       signer,
       publicSigningString,
@@ -72,11 +69,11 @@ export const lexiResolver = (
   resolve: Resolver,
   signer: SignWallet,
   encryptionKey: EncryptionKeyBox,
-  options: LexiSignOptions
+  publicSigningString: string
 ) => {
   return augmentedResolver(
     resolve,
-    augmentDIDLexi(signer, encryptionKey, options)
+    augmentDIDLexi(signer, encryptionKey, publicSigningString)
   );
 };
 

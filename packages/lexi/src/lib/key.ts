@@ -44,17 +44,13 @@ export const generateKeyFromSignature = async (
   signer: SignWallet,
   publicString: string
 ): Promise<Uint8Array> => {
-  let signatureInput = utf8.encode(publicString);
-  // HACK for backward compatibility for now
-  if (!publicString.startsWith("todo_")) {
-    // first we blind the 'publicString' by hashing to ensure we're not
-    // signing arbitrary attacker-provided data:
-    // base64 encode the message because the raw bytes look a bit weird to users of Civic.me
-    signatureInput = utf8.encode(base64.encode(await SHA256D(signatureInput)));
-  }
-
   // first we blind the 'publicString' by hashing to ensure we're not
   // signing arbitrary attacker-provided data:
+  // base64 encode the message because the raw bytes look a bit weird to users of Civic.me
+  const signatureInput = utf8.encode(
+    base64.encode(await SHA256D(utf8.encode(publicString)))
+  );
+
   const signature = await signer.signMessage(signatureInput);
   // Hash the signature to standardise it to 32 bytes
   // using tweetnacl for hashing creates a 64 byte hash, so we use the native crypto lib here instead
@@ -67,16 +63,9 @@ export const generateX25519KeyPairFromSignature = async (
   publicString: string,
   encryptionKeyBox: EncryptionKeyBox
 ): Promise<nacl.BoxKeyPair> => {
-  if (
-    encryptionKeyBox.encryptionKey === null ||
-    publicString.startsWith("todo_") // HACK for backward compatibility for now
-  ) {
+  if (encryptionKeyBox.encryptionKey === null) {
     const key = await generateKeyFromSignature(signer, publicString);
     const ed25519Keypair = sign.keyPair.fromSeed(key);
-    // HACK for backward compatibility for now
-    if (publicString.startsWith("todo_")) {
-      return convertKeyPair(ed25519Keypair);
-    }
     encryptionKeyBox.encryptionKey = convertKeyPair(ed25519Keypair);
   }
   return encryptionKeyBox.encryptionKey;
