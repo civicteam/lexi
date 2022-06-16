@@ -8,7 +8,10 @@ import {
 } from "did-jwt";
 import { LexiOptions, lexiResolver, resolveDID } from "./did";
 import type EncryptionKeyBox from "./encryption_key_box";
-import {generateX25519KeyPairFromSignature, singleUsePublicString,} from "./key";
+import {
+  generateX25519KeyPairFromSignature,
+  singleUsePublicString,
+} from "./key";
 import type { SignWallet } from "./wallet";
 
 /**
@@ -53,10 +56,13 @@ export const decryptJWEWithLexi = async (
   jwe: JWE,
   signer: SignWallet,
   encryptionKeyBox: EncryptionKeyBox,
-  options: LexiOptions
+  options: LexiOptions,
+  publicSigningStringParameter?: string
 ): Promise<Record<string, unknown>> => {
   const publicSigningString =
-    options.publicSigningString || singleUsePublicString;
+    publicSigningStringParameter ||
+    options.publicSigningString ||
+    singleUsePublicString;
 
   const keyPair = await generateX25519KeyPairFromSignature(
     signer,

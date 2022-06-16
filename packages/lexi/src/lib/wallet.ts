@@ -3,7 +3,10 @@ export interface SignWallet {
 }
 
 interface EncryptionWallet {
-  decrypt(cyphertext: string): Promise<Record<string, unknown>>;
+  decrypt(
+    cyphertext: string,
+    publicSigningString?: string
+  ): Promise<Record<string, unknown>>;
   encrypt(plaintext: Record<string, unknown>, did: string): Promise<string>;
 }
 

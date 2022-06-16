@@ -1,10 +1,10 @@
-import { randomBytes, secretbox, sign, SignKeyPair } from "tweetnacl";
-import { convertKeyPair } from "ed2curve-esm";
-import type { SignWallet } from "./wallet";
-import * as crypto from "crypto";
 import * as base64 from "@stablelib/base64";
 import * as utf8 from "@stablelib/utf8";
+import * as crypto from "crypto";
+import { convertKeyPair } from "ed2curve-esm";
+import { randomBytes, secretbox, sign, SignKeyPair } from "tweetnacl";
 import type EncryptionKeyBox from "./encryption_key_box";
+import type { SignWallet } from "./wallet";
 
 const PUBLIC_STRING_LENGTH = 32;
 export const newNonce = () => randomBytes(secretbox.nonceLength);
@@ -18,7 +18,7 @@ const SHA256D = async (input: Uint8Array): Promise<Uint8Array> => {
   const first = crypto.createHash("sha256");
   const second = crypto.createHash("sha256");
   first.update(input);
-  second.update(await first.digest());
+  second.update(first.digest());
   return second.digest();
 };
 
@@ -44,9 +44,17 @@ export const generateKeyFromSignature = async (
   signer: SignWallet,
   publicString: string
 ): Promise<Uint8Array> => {
+  let signatureInput = utf8.encode(publicString);
+  // HACK for backward compatibility for now
+  if (!publicString.startsWith("todo_")) {
+    // first we blind the 'publicString' by hashing to ensure we're not
+    // signing arbitrary attacker-provided data:
+    // base64 encode the message because the raw bytes look a bit weird to users of Civic.me
+    signatureInput = utf8.encode(base64.encode(await SHA256D(signatureInput)));
+  }
+
   // first we blind the 'publicString' by hashing to ensure we're not
   // signing arbitrary attacker-provided data:
-  const signatureInput = await SHA256D(utf8.encode(publicString));
   const signature = await signer.signMessage(signatureInput);
   // Hash the signature to standardise it to 32 bytes
   // using tweetnacl for hashing creates a 64 byte hash, so we use the native crypto lib here instead
@@ -59,9 +67,16 @@ export const generateX25519KeyPairFromSignature = async (
   publicString: string,
   encryptionKeyBox: EncryptionKeyBox
 ): Promise<nacl.BoxKeyPair> => {
-  if (encryptionKeyBox.encryptionKey === null) {
+  if (
+    encryptionKeyBox.encryptionKey === null ||
+    publicString.startsWith("todo_") // HACK for backward compatibility for now
+  ) {
     const key = await generateKeyFromSignature(signer, publicString);
     const ed25519Keypair = sign.keyPair.fromSeed(key);
+    // HACK for backward compatibility for now
+    if (publicString.startsWith("todo_")) {
+      return convertKeyPair(ed25519Keypair);
+    }
     encryptionKeyBox.encryptionKey = convertKeyPair(ed25519Keypair);
   }
   return encryptionKeyBox.encryptionKey;
