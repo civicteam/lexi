@@ -14,6 +14,13 @@ import {
 } from "./key";
 import type { SignWallet } from "./wallet";
 
+type EncryptionPackage = {
+  signingString: string;
+  schema: string;
+  algorithm: string;
+  payload: JWE;
+};
+
 /**
  * Encrypt the payload for the DID
  * @param json
@@ -46,23 +53,31 @@ export const encryptForMe = async (
   signer: SignWallet,
   options: LexiOptions,
   encryptionKey: EncryptionKeyBox
-): Promise<JWE> => {
+): Promise<EncryptionPackage> => {
+  const publicSigningString =
+    options.publicSigningString || singleUsePublicString;
+
   const resolve = options.resolve || resolveDID;
-  const lexiResolve = lexiResolver(resolve, signer, encryptionKey, options);
-  return encryptForDid(json, me, lexiResolve);
+  const lexiResolve = lexiResolver(
+    resolve,
+    signer,
+    encryptionKey,
+    publicSigningString
+  );
+  return {
+    signingString: publicSigningString,
+    algorithm: "ED25519",
+    schema: "lexi-encryption-v1",
+    payload: await encryptForDid(json, me, lexiResolve),
+  };
 };
 
 export const decryptJWEWithLexi = async (
-  jwe: JWE,
+  encryptionPackage: EncryptionPackage,
   signer: SignWallet,
-  encryptionKeyBox: EncryptionKeyBox,
-  options: LexiOptions,
-  publicSigningStringParameter?: string
+  encryptionKeyBox: EncryptionKeyBox
 ): Promise<Record<string, unknown>> => {
-  const publicSigningString =
-    publicSigningStringParameter ||
-    options.publicSigningString ||
-    singleUsePublicString;
+  const publicSigningString = encryptionPackage.signingString;
 
   const keyPair = await generateX25519KeyPairFromSignature(
     signer,
@@ -71,6 +86,6 @@ export const decryptJWEWithLexi = async (
   );
 
   const decrypter = x25519Decrypter(keyPair.secretKey);
-  const decrypted = await decryptJWE(jwe, decrypter);
+  const decrypted = await decryptJWE(encryptionPackage.payload, decrypter);
   return JSON.parse(utf8.decode(decrypted));
 };

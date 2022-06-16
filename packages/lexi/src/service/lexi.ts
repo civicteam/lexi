@@ -32,16 +32,11 @@ export class LexiWallet implements PersonalEncryptionWallet, SignWallet {
     );
   }
 
-  decrypt(
-    cyphertext: string,
-    publicSigningString?: string
-  ): Promise<Record<string, unknown>> {
+  decrypt(cyphertext: string): Promise<Record<string, unknown>> {
     return decryptJWEWithLexi(
       JSON.parse(cyphertext),
       this.wallet,
-      this.encryptionKeyBox,
-      this.options,
-      publicSigningString
+      this.encryptionKeyBox
     );
   }
 
