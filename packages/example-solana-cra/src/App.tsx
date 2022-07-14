@@ -83,10 +83,9 @@ const Content: FC = () => {
           }
         },
       };
-      console.log("did:sol:" + wallet.publicKey.toBase58());
       return new LexiWallet(
         signWallet,
-        "did:sol:devnet:" + wallet.publicKey.toBase58()
+        "did:sol:" + wallet.publicKey.toBase58()
       );
     }
   }, [wallet]);
