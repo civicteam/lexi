@@ -7,7 +7,7 @@ import {
   x25519Decrypter,
 } from "did-jwt";
 import { LexiOptions, lexiResolver, resolveDID } from "./did";
-import type EncryptionKeyBox from "./encryption_key_box";
+import EncryptionKeyBox from "./encryption_key_box";
 import {
   generateX25519KeyPairFromSignature,
   singleUsePublicString,
@@ -75,14 +75,20 @@ export const encryptForMe = async (
 export const decryptJWEWithLexi = async (
   encryptionPackage: EncryptionPackage,
   signer: SignWallet,
+  options: LexiOptions,
   encryptionKeyBox: EncryptionKeyBox
 ): Promise<Record<string, unknown>> => {
   const publicSigningString = encryptionPackage.signingString;
 
+  const finalEncryptKeyBox =
+    publicSigningString === options.publicSigningString
+      ? encryptionKeyBox
+      : new EncryptionKeyBox();
+
   const keyPair = await generateX25519KeyPairFromSignature(
     signer,
     publicSigningString,
-    encryptionKeyBox
+    finalEncryptKeyBox
   );
 
   const decrypter = x25519Decrypter(keyPair.secretKey);

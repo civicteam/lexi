@@ -69,6 +69,7 @@ const Context: FC<{ children: ReactNode }> = ({ children }) => {
 const Content: FC = () => {
   const [message, setMessage] = useState("");
   const [encryptedMessage, setEncryptedMessage] = useState("");
+  const [decryptedMessage, setDecryptedMessage] = useState("");
   const wallet = useWallet();
 
   const lexi = useMemo(() => {
@@ -95,12 +96,24 @@ const Content: FC = () => {
     });
   }, [message, lexi]);
 
+  const descrypt = useCallback(async () => {
+    lexi?.decrypt(message).then((decrypted: Record<string, unknown>) => {
+      setDecryptedMessage(JSON.stringify(decrypted));
+    });
+  }, [message, lexi]);
+
   return (
-    <div>
+    <div style={{ display: "flex", flexDirection: "column" }}>
       <WalletMultiButton />
       <textarea onChange={(e) => setMessage(e.target.value)} />
-      <button onClick={encrypt}>Encrypt</button>
-      {encryptedMessage && <textarea value={encryptedMessage} />}
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        <button onClick={encrypt}>Encrypt</button>
+        {encryptedMessage && <textarea value={encryptedMessage} />}
+      </div>
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        <button onClick={descrypt}>Decrypt</button>
+        {decryptedMessage && <textarea value={decryptedMessage} />}
+      </div>
     </div>
   );
 };
