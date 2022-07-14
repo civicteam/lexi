@@ -7,7 +7,7 @@ import {
   x25519Decrypter,
 } from "did-jwt";
 import { LexiOptions, lexiResolver, resolveDID } from "./did";
-import type EncryptionKeyBox from "./encryption_key_box";
+import EncryptionKeyBox from "./encryption_key_box";
 import {
   generateX25519KeyPairFromSignature,
   singleUsePublicString,
