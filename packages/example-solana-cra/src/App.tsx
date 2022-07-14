@@ -97,7 +97,6 @@ const Content: FC = () => {
   }, [message, lexi]);
 
   const descrypt = useCallback(async () => {
-    console.log(message, lexi);
     lexi?.decrypt(message).then((decrypted: Record<string, unknown>) => {
       setDecryptedMessage(JSON.stringify(decrypted));
     });
