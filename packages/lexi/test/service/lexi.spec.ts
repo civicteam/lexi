@@ -8,6 +8,7 @@ import axios from "axios";
 import type { DIDResolutionResult } from "did-resolver";
 import sinon from "sinon";
 import chaiAsPromised from "chai-as-promised";
+import "mocha";
 
 chai.use(chaiAsPromised);
 
@@ -285,5 +286,34 @@ describe("LexiWallet", () => {
         signKey.publicKey
       )}: undefined, undefined`
     );
+  });
+
+  it("We should be able to decrypt a message from another wallet using the same signer and did.", async () => {
+    const signKey = sign.keyPair();
+    const signer = new SignWalletWithKey(signKey);
+
+    // derive my did from this signing key
+    const me = "did:sol:" + encode(signKey.publicKey);
+
+    // The data we want to encrypt
+    const obj = { hello: "world" };
+
+    // Two wallets using the same signer and did
+    const lexiWalletEncrypt = new LexiWallet(signer, me, {
+      publicSigningString: "signing-string-encrypt",
+    });
+    const lexiWalletDecrypt = new LexiWallet(signer, me, {
+      publicSigningString: "singing-string-decrypt",
+    });
+
+    // We encrypt using both wallet and try do decrypt both with the second one
+    // We need to encrypt with the second so it cache the keys
+    const encryptedFirst = await lexiWalletEncrypt.encryptForMe(obj);
+    const encryptedSecond = await lexiWalletDecrypt.encryptForMe(obj);
+    const decryptedFirst = await lexiWalletDecrypt.decrypt(encryptedFirst);
+    const decryptedSecond = await lexiWalletDecrypt.decrypt(encryptedSecond);
+
+    expect(decryptedFirst).to.eql(obj);
+    expect(decryptedSecond).to.eql(obj);
   });
 });
