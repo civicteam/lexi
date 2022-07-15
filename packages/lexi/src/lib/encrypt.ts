@@ -75,13 +75,13 @@ export const encryptForMe = async (
 export const decryptJWEWithLexi = async (
   encryptionPackage: EncryptionPackage,
   signer: SignWallet,
-  options: LexiOptions,
+  publicString: string,
   encryptionKeyBox: EncryptionKeyBox
 ): Promise<Record<string, unknown>> => {
   const publicSigningString = encryptionPackage.signingString;
 
   const finalEncryptKeyBox =
-    publicSigningString === options.publicSigningString
+    publicSigningString === publicString
       ? encryptionKeyBox
       : new EncryptionKeyBox();
 

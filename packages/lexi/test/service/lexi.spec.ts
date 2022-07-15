@@ -299,12 +299,11 @@ describe("LexiWallet", () => {
     const obj = { hello: "world" };
 
     // Two wallets using the same signer and did
-    const lexiWalletEncrypt = new LexiWallet(signer, me, {
-      publicSigningString: "signing-string-encrypt",
-    });
+    const lexiWalletEncrypt = new LexiWallet(signer, me, {});
     const lexiWalletDecrypt = new LexiWallet(signer, me, {
       publicSigningString: "singing-string-decrypt",
     });
+    const lexiWalletDecryptNoString = new LexiWallet(signer, me, {});
 
     // We encrypt using both wallet and try do decrypt both with the second one
     // We need to encrypt with the second so it cache the keys
@@ -312,8 +311,12 @@ describe("LexiWallet", () => {
     const encryptedSecond = await lexiWalletDecrypt.encryptForMe(obj);
     const decryptedFirst = await lexiWalletDecrypt.decrypt(encryptedFirst);
     const decryptedSecond = await lexiWalletDecrypt.decrypt(encryptedSecond);
+    const decryptedSecondNoString = await lexiWalletDecryptNoString.decrypt(
+      encryptedSecond
+    );
 
     expect(decryptedFirst).to.eql(obj);
     expect(decryptedSecond).to.eql(obj);
+    expect(decryptedSecondNoString).to.eql(obj);
   });
 });
