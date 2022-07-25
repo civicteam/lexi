@@ -80,7 +80,7 @@ The result of the decryption should be the original object you encrypted.
 
 The `LexiWallet` is how you interact with lexi.
 
-##### constructor(wallet: [SignWallet](#signwallet), myDID: string, options?: [LexiOptions](#lexioptions))
+##### constructor(wallet: [SignWallet](#signwallet-type), myDID: string, options?: [LexiOptions](#lexioptions-type))
 
 Will instantiate a new LexiWallet object. The LexiOptions it's optional but a wallet and did must be provided.
 
