@@ -6,9 +6,9 @@ An encryption mechanism based on "Lexi Magic" - deriving an encryption key from 
 
 It’s strange that most crypto wallets don’t support encryption. After all, at a mathematical level, asymmetric encryption and signing are equivalent actions. Specifically, encrypting data with a public key, and signing a hash with a private key are equivalent, as are the associated decryption and signature verification functions.
 
-Although crypto wallets are primarily (in some cases exclusively) concerned with signing crypto transactions, the value in an encryption feature in Web3, where data are frequently stored on decentralised file stores such as IPFS, are obvious.
+Although crypto wallets are primarily (in some cases exclusively) concerned with signing crypto transactions, the value in an encryption feature in Web3, where data are frequently stored on decentralised file stores such as IPFS, is obvious.
 
-Lexi provide means to derive an encryption key via a wallet signature for cases where the wallet does not support encryption.
+Lexi provides means to derive an encryption key via a wallet signature for cases where the wallet does not support encryption.
 
 ## Installing
 
@@ -82,7 +82,7 @@ The `LexiWallet` is how you interact with lexi.
 
 ##### constructor(wallet: [SignWallet](#signwallet-type), myDID: string, options?: [LexiOptions](#lexioptions-type))
 
-Will instantiate a new LexiWallet object. The LexiOptions it's optional but a wallet and did must be provided.
+Will instantiate a new LexiWallet object. The LexiOptions parameter is optional but a wallet and did must be provided.
 
 ##### generateKeyForSigning(): `void`
 
