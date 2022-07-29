@@ -90,11 +90,33 @@ Generate and store the keys for signing. This can be called if you want to have 
 
 ##### encrypt(plaintext: Record`<string, unknown>`, did: string): Promise`<string>`
 
-Encrypt an object for a specific did.
+Encrypt an object for a DID. The payload will be encrypted for the DID by adding a new Verification Method to it based on Lexi:
+
+```typescript
+const keyPair = await generateX25519KeyPairFromSignature(
+  signer,
+  publicSigningString,
+  encryptionKeyBox
+);
+
+const lexiKey = {
+  id: "lexi",
+  type: "X25519KeyAgreementKey2019",
+  publicKeyBase58: encode(keyPair.publicKey),
+} as VerificationMethod;
+
+const keyAgreement = didDocument.keyAgreement || [];
+
+// add the new key to the document
+return {
+  ...didDocument,
+  keyAgreement: [...keyAgreement, lexiKey],
+};
+```
 
 ##### encryptForMe(plaintext: Record`<string, unknown>`): Promise`<string>`
 
-Encrypt an object for your did.
+Encrypt an object for the did used in the wallet. The process is the same as `encrypt`.
 
 ##### decrypt(lexitext: string): Promise`<Record<string, unknown>>`
 
