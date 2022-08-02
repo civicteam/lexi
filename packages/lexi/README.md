@@ -90,7 +90,7 @@ Generate and store the keys for signing. This can be called if you want to have 
 
 ##### encrypt(plaintext: Record`<string, unknown>`, did: string): Promise`<string>`
 
-Encrypt an object for a DID. The payload will be encrypted for the DID by adding a new Verification Method to it based on Lexi:
+Encrypt an object for a DID. The payload will be encrypted for the DID by adding a new key agreement to it based on Lexi:
 
 ```typescript
 const keyPair = await generateX25519KeyPairFromSignature(
