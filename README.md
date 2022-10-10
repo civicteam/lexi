@@ -5,7 +5,8 @@ An encryption mechanism based on "Lexi Magic" - deriving an encryption key from 
 ## Quick Setup
 
 ```shell
-yarn lerna run install
+yarn
+yarn lerna boostrap
 yarn lerna run build
 ```
 
