@@ -319,4 +319,49 @@ describe("LexiWallet", () => {
     expect(decryptedSecond).to.eql(obj);
     expect(decryptedSecondNoString).to.eql(obj);
   });
+
+  it("should cache the signMessage result for publicSigningString in the instance", async () => {
+    const signKey = sign.keyPair();
+    const signer = new SignWalletWithKey(signKey);
+
+    // derive my did from this signing key
+    const me = "did:sol:" + encode(signKey.publicKey);
+
+    sinon.spy(signer, "signMessage");
+
+    // The data we want to encrypt
+    const obj = { hello: "world" };
+
+    const lexiWallet = new LexiWallet(signer, me, {});
+
+    const encryptedFirst = await lexiWallet.encryptForMe(obj);
+    const encryptedSecond = await lexiWallet.encryptForMe(obj);
+    await lexiWallet.decrypt(encryptedFirst);
+    await lexiWallet.decrypt(encryptedSecond);
+
+    expect(signer.signMessage.calledOnce).to.be.true;
+  });
+
+  it("should cache the signMessage result for publicSigningString in the cypher text", async () => {
+    const signKey = sign.keyPair();
+    const signer = new SignWalletWithKey(signKey);
+
+    // derive my did from this signing key
+    const me = "did:sol:" + encode(signKey.publicKey);
+
+    sinon.spy(signer, "signMessage");
+
+    // The data we want to encrypt
+    const obj = { hello: "world" };
+
+    const lexiWalletEncrypt = new LexiWallet(signer, me, {});
+    const lexiWallet = new LexiWallet(signer, me, {});
+
+    const encryptedFirst = await lexiWalletEncrypt.encryptForMe(obj);
+    const encryptedSecond = await lexiWalletEncrypt.encryptForMe(obj);
+    await lexiWallet.decrypt(encryptedFirst);
+    await lexiWallet.decrypt(encryptedSecond);
+
+    expect(signer.signMessage.callCount).to.eq(2);
+  });
 });

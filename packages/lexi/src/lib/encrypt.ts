@@ -14,7 +14,7 @@ import {
 } from "./key";
 import type { SignWallet } from "./wallet";
 
-type EncryptionPackage = {
+export type EncryptionPackage = {
   signingString: string;
   schema: string;
   algorithm: string;
