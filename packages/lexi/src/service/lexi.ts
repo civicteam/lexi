@@ -7,8 +7,8 @@ import {
   EncryptionPackage,
 } from "../lib/encrypt";
 import {
+  generateRandomString,
   generateX25519KeyPairFromSignature,
-  singleUsePublicString,
 } from "../lib/key";
 import type { PersonalEncryptionWallet, SignWallet } from "../lib/wallet";
 
@@ -16,6 +16,7 @@ export class LexiWallet implements PersonalEncryptionWallet, SignWallet {
   private readonly wallet: SignWallet;
   private myDID: string;
   private readonly options: LexiOptions;
+  private singleUsePublicString: string;
   // a list of keyboxes indexed by the signingString
   // this is necessary because each message can have a different string so it's cached to avoid multiple sign calls
   private readonly encryptionKeyBoxes: Record<string, EncryptionKeyBox>;
@@ -24,14 +25,13 @@ export class LexiWallet implements PersonalEncryptionWallet, SignWallet {
     this.wallet = wallet;
     this.myDID = myDID;
     this.options = options;
+    this.singleUsePublicString =
+      options.publicSigningString || generateRandomString();
     this.encryptionKeyBoxes = {};
   }
 
   getEncryptionKeyBox(signingString?: string): EncryptionKeyBox {
-    const key =
-      signingString ||
-      this.options.publicSigningString ||
-      singleUsePublicString;
+    const key = signingString || this.singleUsePublicString;
     const value = this.encryptionKeyBoxes[key] || new EncryptionKeyBox();
     this.encryptionKeyBoxes[key] = value;
     return value;
@@ -40,7 +40,7 @@ export class LexiWallet implements PersonalEncryptionWallet, SignWallet {
   async generateKeyForSigning() {
     await generateX25519KeyPairFromSignature(
       this.wallet,
-      this.options.publicSigningString || singleUsePublicString,
+      this.singleUsePublicString,
       this.getEncryptionKeyBox()
     );
   }
@@ -50,7 +50,6 @@ export class LexiWallet implements PersonalEncryptionWallet, SignWallet {
     return decryptJWEWithLexi(
       parsedText,
       this.wallet,
-      this.options.publicSigningString || singleUsePublicString,
       this.getEncryptionKeyBox(parsedText.signingString)
     );
   }
@@ -66,8 +65,9 @@ export class LexiWallet implements PersonalEncryptionWallet, SignWallet {
       plaintext,
       this.myDID,
       this.wallet,
-      this.options,
-      this.getEncryptionKeyBox()
+      this.singleUsePublicString,
+      this.getEncryptionKeyBox(),
+      this.options.resolve
     ).then(JSON.stringify);
   }
 
