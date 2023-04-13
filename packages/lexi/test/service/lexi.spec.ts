@@ -364,4 +364,22 @@ describe("LexiWallet", () => {
 
     expect(signer.signMessage.callCount).to.eq(2);
   });
+
+  it("should generate different signing string for different lexi wallets", async () => {
+    const signKey = sign.keyPair();
+    const signer = new SignWalletWithKey(signKey);
+
+    // derive my did from this signing key
+    const me = "did:sol:" + encode(signKey.publicKey);
+
+    // The data we want to encrypt
+    const obj = { hello: "world" };
+
+    const wallet1 = new LexiWallet(signer, me, {});
+    const wallet2 = new LexiWallet(signer, me, {});
+
+    expect(wallet1["singleUsePublicString"]).to.not.eq(
+      wallet2["singleUsePublicString"]
+    );
+  });
 });

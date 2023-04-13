@@ -10,9 +10,8 @@ const PUBLIC_STRING_LENGTH = 32;
 export const newNonce = () => randomBytes(secretbox.nonceLength);
 
 // Generate a string that will seed the "lexi magic". This is assumed to be public knowledge.
-export const singleUsePublicString = base64.encode(
-  randomBytes(PUBLIC_STRING_LENGTH)
-);
+export const generateRandomString = () =>
+  base64.encode(randomBytes(PUBLIC_STRING_LENGTH));
 
 const SHA256D = async (input: Uint8Array): Promise<Uint8Array> => {
   const first = crypto.createHash("sha256");
