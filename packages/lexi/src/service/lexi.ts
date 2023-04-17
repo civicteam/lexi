@@ -1,4 +1,4 @@
-import EncryptionKeyBox from "src/lib/encryption_key_box";
+import EncryptionKeyBox from "../lib/encryption_key_box";
 import type { LexiOptions } from "../lib/did";
 import {
   decryptJWEWithLexi,
