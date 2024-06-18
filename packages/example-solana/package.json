@@ -8,19 +8,24 @@
     "build": "yarn webpack"
   },
   "dependencies": {
-    "@civic/lexi": "^0.0.1",
-    "@solana/wallet-adapter-base": "^0.9.4",
-    "@solana/wallet-adapter-react": "^0.15.3",
-    "@solana/wallet-adapter-react-ui": "^0.9.5",
-    "@solana/wallet-adapter-wallets": "^0.15.2",
-    "@solana/web3.js": "^1.36.0",
+    "@civic/lexi": "*",
+    "@solana/wallet-adapter-base": "^0.9.23",
+    "@solana/wallet-adapter-react": "^0.15.35",
+    "@solana/wallet-adapter-react-ui": "^0.9.35",
+    "@solana/wallet-adapter-wallets": "^0.19.32",
+    "@solana/web3.js": "1.93.0",
+    "browserify-zlib": "^0.2.0",
     "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.0",
-    "did-jwt": "^6.0.0",
+    "did-jwt": "git+https://github.com/civicteam/did-jwt",
+    "https-browserify": "^1.0.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "stream-browserify": "^3.0.0",
-    "tailwindcss": "^3.0.23"
+    "stream-http": "^3.2.0",
+    "tailwindcss": "^3.0.23",
+    "url": "^0.11.3",
+    "vm-browserify": "^1.1.2"
   },
   "devDependencies": {
     "@types/node": "^17.0.17",

@@ -1,4 +1,3 @@
-import * as utf8 from "@stablelib/utf8";
 import {
   createJWE,
   decryptJWE,
@@ -14,38 +13,37 @@ import type { SignWallet } from "./wallet";
 export type EncryptionPackage = {
   signingString: string;
   schema: string;
-  algorithm: string;
   payload: JWE;
 };
 
 /**
  * Encrypt the payload for the DID
- * @param json
+ * @param input
  * @param recipient
  * @param resolve
  */
 export const encryptForDid = async (
-  json: Record<string, unknown>,
+  input: Uint8Array,
   recipient: string,
-  resolve = resolveDID
+  resolve: Resolver = resolveDID
 ): Promise<JWE> => {
   const didJwtResolver = { resolve };
-  const encoded = utf8.encode(JSON.stringify(json));
   const encrypters = await resolveX25519Encrypters([recipient], didJwtResolver);
-  return createJWE(encoded, encrypters);
+  return createJWE(input, encrypters);
 };
 
 /**
  * Encrypt the payload for my DID, using a DID resolver that knows about Lexi, i.e.
  * will artificially add to the DID my encryption key based on my signing key.
- * @param json
+ * @param input
  * @param me
  * @param signer
- * @param options
+ * @param publicSigningString
  * @param encryptionKey
+ * @param resolve
  */
 export const encryptForMe = async (
-  json: Record<string, unknown>,
+  input: Uint8Array,
   me: string,
   signer: SignWallet,
   publicSigningString: string,
@@ -60,9 +58,8 @@ export const encryptForMe = async (
   );
   return {
     signingString: publicSigningString,
-    algorithm: "ED25519",
     schema: "lexi-encryption-v1",
-    payload: await encryptForDid(json, me, lexiResolve),
+    payload: await encryptForDid(input, me, lexiResolve),
   };
 };
 
@@ -70,7 +67,7 @@ export const decryptJWEWithLexi = async (
   encryptionPackage: EncryptionPackage,
   signer: SignWallet,
   encryptionKeyBox: EncryptionKeyBox
-): Promise<Record<string, unknown>> => {
+): Promise<Uint8Array> => {
   const publicSigningString = encryptionPackage.signingString;
 
   const keyPair = await generateX25519KeyPairFromSignature(
@@ -79,7 +76,7 @@ export const decryptJWEWithLexi = async (
     encryptionKeyBox
   );
 
+  // basically an x25519 decrypter
   const decrypter = x25519Decrypter(keyPair.secretKey);
-  const decrypted = await decryptJWE(encryptionPackage.payload, decrypter);
-  return JSON.parse(utf8.decode(decrypted));
+  return decryptJWE(encryptionPackage.payload, decrypter);
 };

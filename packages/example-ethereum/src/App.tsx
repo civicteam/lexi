@@ -1,8 +1,9 @@
 import React, {FC, useCallback, useMemo, useState} from 'react';
 import './App.css';
 
-import {LexiWallet} from "@civic/lexi";
+import { bytesToObj, LexiWallet, objToBytes } from "@civic/lexi";
 import {useWallet, WalletProvider} from "./WalletContext";
+import {EncryptionPackage} from "@civic/lexi/dist/lib/encrypt";
 
 export const App: FC = () =>
   <WalletProvider>
@@ -12,7 +13,7 @@ export const App: FC = () =>
 const Content: FC = () => {
   const [seed, setSeed] = useState("secret")
   const [input, setInput] = useState("")
-  const [output, setOutput] = useState("")
+  const [output, setOutput] = useState<EncryptionPackage | null>(null)
   const wallet = useWallet();
 
   const lexi = useMemo(() => {
@@ -26,23 +27,23 @@ const Content: FC = () => {
           }
         },
       }
-      const did = "did:ethr:" + wallet.account;
-      console.log("DID", did)
+      const did = "did:pkh:eip155:1:" + wallet.account;
       return new LexiWallet(signWallet, did, { publicSigningString : seed})
     }
   }, [wallet, seed])
 
   const encrypt = useCallback(async () => {
-    lexi?.encryptForMe({ message: input }).then(setOutput)
+    lexi?.encryptForMe(objToBytes({ message: input })).then(setOutput)
   }, [input, lexi])
 
   const decrypt = useCallback(async () => {
-    lexi?.decrypt(input).then(({message}) => setOutput(message as string))
+    const encryptionPackage = JSON.parse(input) as EncryptionPackage
+    lexi?.decrypt(encryptionPackage).then((decrypted) => setOutput(bytesToObj(decrypted).message))
   }, [input, lexi])
 
   const clear = useCallback(() => {
     setInput("")
-    setOutput("")
+    setOutput(null)
   }, [])
 
   return <div>
@@ -68,7 +69,7 @@ const Content: FC = () => {
         <button className="btn btn-blue" onClick={clear}>Clear</button>
       </div>
       <div className="w-full text-center pt-3 text-gray-800">
-        {output && <textarea readOnly={true} value={output}/>}
+        {output && <textarea readOnly={true} value={JSON.stringify(output, null, 2)}/>}
       </div>
     </div>
   </div>;

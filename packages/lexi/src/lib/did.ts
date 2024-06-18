@@ -1,13 +1,9 @@
 import axios from "axios";
-import { encode } from "bs58";
-import type {
-  DIDDocument,
-  DIDResolutionResult,
-  VerificationMethod,
-} from "did-resolver";
+import {encode} from "bs58";
+import type {DIDDocument, DIDResolutionResult, VerificationMethod,} from "did-resolver";
 import type EncryptionKeyBox from "./encryption_key_box";
-import { generateX25519KeyPairFromSignature } from "./key";
-import type { SignWallet } from "./wallet";
+import {generateX25519KeyPairFromSignature} from "./key";
+import type {SignWallet} from "./wallet";
 
 export type LexiSignOptions = {
   publicSigningString?: string;
@@ -31,17 +27,17 @@ const augmentDIDLexi =
     );
 
     const lexiKey = {
-      id: "lexi",
+      id: `${didDocument.id}#lexi-key`,
       type: "X25519KeyAgreementKey2019",
+      controller: didDocument.id,
       publicKeyBase58: encode(keyPair.publicKey),
     } as VerificationMethod;
-
-    const keyAgreement = didDocument.keyAgreement || [];
 
     // add the new key to the document
     return {
       ...didDocument,
-      keyAgreement: [...keyAgreement, lexiKey],
+      verificationMethod: [...(didDocument.verificationMethod ?? []), lexiKey],
+      keyAgreement: [...(didDocument.keyAgreement ?? []), lexiKey.id],
     };
   };
 
@@ -56,10 +52,10 @@ const augmentedResolver =
     const augmentedDocument = await augmentDocument(
       resolutionResult.didDocument
     );
-    return {
-      ...resolutionResult,
-      didDocument: augmentedDocument,
-    };
+      return {
+          ...resolutionResult,
+          didDocument: augmentedDocument,
+      };
   };
 
 export const lexiResolver = (
@@ -67,7 +63,7 @@ export const lexiResolver = (
   signer: SignWallet,
   encryptionKey: EncryptionKeyBox,
   publicSigningString: string
-) => {
+):Resolver => {
   return augmentedResolver(
     resolve,
     augmentDIDLexi(signer, encryptionKey, publicSigningString)
@@ -76,9 +72,17 @@ export const lexiResolver = (
 
 export const simpleResolver = async (
   did: string
-): Promise<DIDResolutionResult> =>
-  axios
-    .get("https://did.civic.com/1.0/identifiers/" + did)
-    .then<DIDResolutionResult>((res) => res.data);
+): Promise<DIDResolutionResult> => {
+    return axios
+        .get("https://did.civic.com/1.0/identifiers/" + did, {
+            headers: {
+                // the uniresolver is sensitive to the accept header.
+                // if application/json, it returns a did document, if missing or */*,
+                // a did resolution response containing a did document
+                Accept: "*/*",
+            },
+        })
+        .then<DIDResolutionResult>((res) => res.data);
+};
 
 export const resolveDID = simpleResolver;

@@ -92,7 +92,6 @@ export const WalletProvider: FC<PropsWithChildren<unknown>> = ({ children }) => 
       params: [Buffer.from(message).toString('hex'), account]
     };
 
-    console.log("Request  ", request);
     return library.provider.request(request);
   };
 
@@ -116,7 +115,6 @@ export const WalletProvider: FC<PropsWithChildren<unknown>> = ({ children }) => 
   useEffect(() => {
     if (provider?.on) {
       const handleAccountsChanged = (accounts: string[]) => {
-        console.log("accountsChanged", accounts);
         if (accounts) {
           setAccount(accounts[0]);
         }
@@ -127,7 +125,6 @@ export const WalletProvider: FC<PropsWithChildren<unknown>> = ({ children }) => 
       };
 
       const handleDisconnect = () => {
-        console.log("disconnect", error);
         disconnect();
       };
 

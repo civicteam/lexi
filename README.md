@@ -6,14 +6,18 @@ An encryption mechanism based on "Lexi Magic" - deriving an encryption key from 
 
 ```shell
 yarn
-yarn lerna boostrap
+yarn lerna bootstrap
 yarn lerna run build
 ```
 
 ## Demos
 
-Demos deployed online:
+See the examples folder for examples.
 
-[Example Solana](https://civic-lexi.surge.sh/)
-[Example Ethereum](https://civic-lex-eth.surge.sh/)
-[Web3 (metamask) encryption](https://web3-encrypt.surge.sh/)
+To run:
+
+```shell
+yarn workspaces run build
+open packages/example-ethereum/dist/index.html
+open packages/example-solana/dist/index.html
+```
