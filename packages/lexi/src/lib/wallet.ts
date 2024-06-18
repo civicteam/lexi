@@ -1,15 +1,18 @@
+import type { EncryptionPackage } from "./encrypt";
+import type {JWE} from "did-jwt";
+
 export interface SignWallet {
   signMessage(message: Uint8Array): Promise<Uint8Array>;
 }
 
 interface EncryptionWallet {
   decrypt(
-    cyphertext: string,
+    cyphertext: EncryptionPackage,
     publicSigningString?: string
-  ): Promise<Record<string, unknown>>;
-  encrypt(plaintext: Record<string, unknown>, did: string): Promise<string>;
+  ): Promise<Uint8Array>;
+  encrypt(plaintext: Uint8Array, did: string): Promise<JWE>;
 }
 
 export interface PersonalEncryptionWallet extends EncryptionWallet {
-  encryptForMe(plaintext: Record<string, unknown>): Promise<string>;
+  encryptForMe(plaintext: Uint8Array): Promise<EncryptionPackage>;
 }

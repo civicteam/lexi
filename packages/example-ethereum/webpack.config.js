@@ -43,17 +43,17 @@ module.exports = {
     new ProvidePlugin({
       Buffer: ['buffer', 'Buffer'],
     }),
-    // new ProvidePlugin({
-    //   process: 'process/browser',
-    // }),
+    new ProvidePlugin({
+      process: 'process/browser',
+    }),
     new DefinePlugin({
       'process.env': JSON.stringify({ }),
     })
   ],
   resolve: {
-    // alias: {
-    //   process: "process/browser"
-    // },
+    alias: {
+      process: "process/browser"
+    },
     fallback: {
       assert: require.resolve('assert'),
       buffer: require.resolve('buffer'),
@@ -62,7 +62,8 @@ module.exports = {
       os: require.resolve("os-browserify/browser"),
       http: require.resolve("stream-http"),
       url: require.resolve("url/"),
-      https: require.resolve("https-browserify")
+      https: require.resolve("https-browserify"),
+      process: require.resolve('process/browser')
     },
     extensions: ['.tsx', '.ts', '.js'],
   },

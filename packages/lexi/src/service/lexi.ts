@@ -11,6 +11,7 @@ import {
   generateX25519KeyPairFromSignature,
 } from "../lib/key";
 import type { PersonalEncryptionWallet, SignWallet } from "../lib/wallet";
+import type {JWE} from "did-jwt";
 
 export class LexiWallet implements PersonalEncryptionWallet, SignWallet {
   private readonly wallet: SignWallet;
@@ -45,22 +46,19 @@ export class LexiWallet implements PersonalEncryptionWallet, SignWallet {
     );
   }
 
-  decrypt(cyphertext: string): Promise<Record<string, unknown>> {
-    const parsedText = JSON.parse(cyphertext) as EncryptionPackage;
+  decrypt(cyphertext: EncryptionPackage): Promise<Uint8Array> {
     return decryptJWEWithLexi(
-      parsedText,
+      cyphertext,
       this.wallet,
-      this.getEncryptionKeyBox(parsedText.signingString)
+      this.getEncryptionKeyBox(cyphertext.signingString)
     );
   }
 
-  encrypt(plaintext: Record<string, unknown>, did: string): Promise<string> {
-    return encryptForDid(plaintext, did, this.options.resolve).then(
-      JSON.stringify
-    );
+  encrypt(plaintext: Uint8Array, did: string): Promise<JWE> {
+    return encryptForDid(plaintext, did, this.options.resolve);
   }
 
-  encryptForMe(plaintext: Record<string, unknown>): Promise<string> {
+  encryptForMe(plaintext: Uint8Array): Promise<EncryptionPackage> {
     return encryptForMe(
       plaintext,
       this.myDID,
@@ -68,7 +66,7 @@ export class LexiWallet implements PersonalEncryptionWallet, SignWallet {
       this.singleUsePublicString,
       this.getEncryptionKeyBox(),
       this.options.resolve
-    ).then(JSON.stringify);
+    );
   }
 
   signMessage(message: Uint8Array): Promise<Uint8Array> {

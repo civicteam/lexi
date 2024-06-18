@@ -3,13 +3,16 @@ import { sign } from "tweetnacl";
 import { encode } from "bs58";
 import { SignWalletWithKey } from "../../src/lib/key";
 import { LexiWallet } from "../../src/service/lexi";
-import chai, { expect } from "chai";
+import * as chai from "chai";
 import axios from "axios";
 import type { DIDResolutionResult } from "did-resolver";
-import sinon from "sinon";
+import * as sinon from "sinon";
 import chaiAsPromised from "chai-as-promised";
 import "mocha";
+import {SinonSpy} from "sinon";
+import {bytesToObj, objToBytes} from "../../src";
 
+const { expect } = chai;
 chai.use(chaiAsPromised);
 
 describe("LexiWallet", () => {
@@ -27,7 +30,14 @@ describe("LexiWallet", () => {
             ],
             id: "did:sol:6n853y6agbzauRS9BhkovVF2EuGux4C7iq7RFdZPhYPa",
             controller: [],
-            verificationMethod: [[Object]],
+            verificationMethod: [
+              {
+                id: "did:sol:6n853y6agbzauRS9BhkovVF2EuGux4C7iq7RFdZPhYPa#default",
+                type: "Ed25519VerificationKey2018",
+                controller: "did:sol:6n853y6agbzauRS9BhkovVF2EuGux4C7iq7RFdZPhYPa",
+                publicKeyBase58: "6n853y6agbzauRS9BhkovVF2EuGux4C7iq7RFdZPhYPa"
+              }
+            ],
             authentication: [],
             assertionMethod: [],
             keyAgreement: [],
@@ -36,7 +46,12 @@ describe("LexiWallet", () => {
             ],
             capabilityDelegation: [],
             service: [],
-            publicKey: [[Object]],
+            publicKey: [{
+              id: "did:sol:6n853y6agbzauRS9BhkovVF2EuGux4C7iq7RFdZPhYPa#default",
+              type: "Ed25519VerificationKey2018",
+              controller: "did:sol:6n853y6agbzauRS9BhkovVF2EuGux4C7iq7RFdZPhYPa",
+              publicKeyBase58: "6n853y6agbzauRS9BhkovVF2EuGux4C7iq7RFdZPhYPa"
+            }],
           },
           content: null,
           contentType: null,
@@ -86,10 +101,10 @@ describe("LexiWallet", () => {
 
     // encrypt and decrypt using lexi-aware wallet
     const lexiWallet = new LexiWallet(signer, me, {});
-    const encryptedWithWallet = await lexiWallet.encryptForMe(obj);
+    const encryptedWithWallet = await lexiWallet.encryptForMe(objToBytes(obj));
     const decrypted = await lexiWallet.decrypt(encryptedWithWallet);
 
-    expect(decrypted).to.eql(obj);
+    expect(bytesToObj(decrypted)).to.eql(obj);
   });
 
   it("We create a LexiWallet that does not  generate a key when initiated", async () => {
@@ -104,10 +119,10 @@ describe("LexiWallet", () => {
 
     // encrypt and decrypt using lexi-aware wallet
     const lexiWallet = new LexiWallet(signer, me, {});
-    const encryptedWithWallet = await lexiWallet.encryptForMe(obj);
+    const encryptedWithWallet = await lexiWallet.encryptForMe(objToBytes(obj));
     const decrypted = await lexiWallet.decrypt(encryptedWithWallet);
 
-    expect(decrypted).to.eql(obj);
+    expect(bytesToObj(decrypted)).to.eql(obj);
   });
 
   it("We create a LexiWallet with options for passing in the resolver", async () => {
@@ -128,10 +143,10 @@ describe("LexiWallet", () => {
           .then<DIDResolutionResult>((res) => res.data);
       },
     });
-    const encryptedWithWallet = await lexiWallet.encryptForMe(obj);
+    const encryptedWithWallet = await lexiWallet.encryptForMe(objToBytes(obj));
     const decrypted = await lexiWallet.decrypt(encryptedWithWallet);
 
-    expect(decrypted).to.eql(obj);
+    expect(bytesToObj(decrypted)).to.eql(obj);
   });
 
   it("We create a LexiWallet and call the sign method", async () => {
@@ -146,14 +161,14 @@ describe("LexiWallet", () => {
 
     // encrypt and decrypt using lexi-aware wallet
     const lexiWallet = new LexiWallet(signer, me, {});
-    const encryptedWithWallet = await lexiWallet.encryptForMe(obj);
+    const encryptedWithWallet = await lexiWallet.encryptForMe(objToBytes(obj));
     const decrypted = await lexiWallet.decrypt(encryptedWithWallet);
 
     expect(
       lexiWallet.signMessage(Buffer.from(JSON.stringify(obj)))
     ).to.eventually.eql({});
 
-    expect(decrypted).to.eql(obj);
+    expect(bytesToObj(decrypted)).to.eql(obj);
   });
 
   it("We create a LexiWallet and call the encrypt method", async () => {
@@ -168,12 +183,12 @@ describe("LexiWallet", () => {
 
     // encrypt and decrypt using lexi-aware wallet
     const lexiWallet = new LexiWallet(signer, me, {});
-    const encryptedWithWallet = await lexiWallet.encryptForMe(obj);
+    const encryptedWithWallet = await lexiWallet.encryptForMe(objToBytes(obj));
     const decrypted = await lexiWallet.decrypt(encryptedWithWallet);
 
-    expect(lexiWallet.encrypt(obj, me)).to.eventually.eql({});
+    await expect(lexiWallet.encrypt(objToBytes(obj), me)).to.be.rejectedWith(/Could not find X25519 key/);
 
-    expect(decrypted).to.eql(obj);
+    expect(bytesToObj(decrypted)).to.eql(obj);
   });
 
   it("We create a LexiWallet without any options", async () => {
@@ -234,10 +249,10 @@ describe("LexiWallet", () => {
 
     // encrypt and decrypt using lexi-aware wallet
     const lexiWallet = new LexiWallet(signer, me);
-    const encryptedWithWallet = await lexiWallet.encryptForMe(obj);
+    const encryptedWithWallet = await lexiWallet.encryptForMe(objToBytes(obj));
     const decrypted = await lexiWallet.decrypt(encryptedWithWallet);
 
-    expect(decrypted).to.eql(obj);
+    expect(bytesToObj(decrypted)).to.eql(obj);
   });
 
   it("Test what happens if we can't get a back a DIDDocument", async () => {
@@ -281,7 +296,7 @@ describe("LexiWallet", () => {
 
     // encrypt and decrypt using lexi-aware wallet
     const lexiWallet = new LexiWallet(signer, me);
-    return expect(lexiWallet.encryptForMe(obj)).to.eventually.be.rejectedWith(
+    return expect(lexiWallet.encryptForMe(objToBytes(obj))).to.eventually.be.rejectedWith(
       `resolver_error: Could not resolve did:sol:${encode(
         signKey.publicKey
       )}: undefined, undefined`
@@ -305,19 +320,19 @@ describe("LexiWallet", () => {
     });
     const lexiWalletDecryptNoString = new LexiWallet(signer, me, {});
 
-    // We encrypt using both wallet and try do decrypt both with the second one
+    // We encrypt using both wallet and try to decrypt both with the second one
     // We need to encrypt with the second so it cache the keys
-    const encryptedFirst = await lexiWalletEncrypt.encryptForMe(obj);
-    const encryptedSecond = await lexiWalletDecrypt.encryptForMe(obj);
+    const encryptedFirst = await lexiWalletEncrypt.encryptForMe(objToBytes(obj));
+    const encryptedSecond = await lexiWalletDecrypt.encryptForMe(objToBytes(obj));
     const decryptedFirst = await lexiWalletDecrypt.decrypt(encryptedFirst);
     const decryptedSecond = await lexiWalletDecrypt.decrypt(encryptedSecond);
     const decryptedSecondNoString = await lexiWalletDecryptNoString.decrypt(
       encryptedSecond
     );
 
-    expect(decryptedFirst).to.eql(obj);
-    expect(decryptedSecond).to.eql(obj);
-    expect(decryptedSecondNoString).to.eql(obj);
+    expect(bytesToObj(decryptedFirst)).to.eql(obj);
+    expect(bytesToObj(decryptedSecond)).to.eql(obj);
+    expect(bytesToObj(decryptedSecondNoString)).to.eql(obj);
   });
 
   it("should cache the signMessage result for publicSigningString in the instance", async () => {
@@ -334,12 +349,12 @@ describe("LexiWallet", () => {
 
     const lexiWallet = new LexiWallet(signer, me, {});
 
-    const encryptedFirst = await lexiWallet.encryptForMe(obj);
-    const encryptedSecond = await lexiWallet.encryptForMe(obj);
+    const encryptedFirst = await lexiWallet.encryptForMe(objToBytes(obj));
+    const encryptedSecond = await lexiWallet.encryptForMe(objToBytes(obj));
     await lexiWallet.decrypt(encryptedFirst);
     await lexiWallet.decrypt(encryptedSecond);
 
-    expect(signer.signMessage.calledOnce).to.be.true;
+    expect((signer.signMessage as SinonSpy).calledOnce).to.be.true;
   });
 
   it("should cache the signMessage result for publicSigningString in the cypher text", async () => {
@@ -357,12 +372,12 @@ describe("LexiWallet", () => {
     const lexiWalletEncrypt = new LexiWallet(signer, me, {});
     const lexiWallet = new LexiWallet(signer, me, {});
 
-    const encryptedFirst = await lexiWalletEncrypt.encryptForMe(obj);
-    const encryptedSecond = await lexiWalletEncrypt.encryptForMe(obj);
+    const encryptedFirst = await lexiWalletEncrypt.encryptForMe(objToBytes(obj));
+    const encryptedSecond = await lexiWalletEncrypt.encryptForMe(objToBytes(obj));
     await lexiWallet.decrypt(encryptedFirst);
     await lexiWallet.decrypt(encryptedSecond);
 
-    expect(signer.signMessage.callCount).to.eq(2);
+    expect((signer.signMessage as SinonSpy).callCount).to.eq(2);
   });
 
   it("should generate different signing string for different lexi wallets", async () => {

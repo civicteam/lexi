@@ -44,6 +44,11 @@ module.exports = {
       buffer: require.resolve('buffer'),
       stream: require.resolve('stream-browserify'),
       crypto: require.resolve('crypto-browserify'),
+      https: require.resolve("https-browserify"),
+      url: require.resolve("url/"),
+      zlib: require.resolve("browserify-zlib"),
+      http: require.resolve("stream-http"),
+      vm: require.resolve("vm-browserify")
     },
     extensions: ['.tsx', '.ts', '.js'],
   },
