@@ -1,5 +1,5 @@
 import type { EncryptionPackage } from "./encrypt";
-import type {JWE} from "did-jwt";
+import type { JWE } from "did-jwt";
 
 export interface SignWallet {
   signMessage(message: Uint8Array): Promise<Uint8Array>;
@@ -20,7 +20,7 @@ export interface PersonalEncryptionWallet extends EncryptionWallet {
 // A wallet that caches signed messages to avoid multiple calls to the wallet
 export class CachedSignWallet implements SignWallet {
   private readonly wallet: SignWallet;
-  private readonly cache: Record<string, Uint8Array>;
+  private readonly cache: Record<string, Promise<Uint8Array>>;
 
   constructor(wallet: SignWallet) {
     this.wallet = wallet;
@@ -30,8 +30,8 @@ export class CachedSignWallet implements SignWallet {
   async signMessage(message: Uint8Array): Promise<Uint8Array> {
     const key = message.toString();
     if (!this.cache[key]) {
-      this.cache[key] = await this.wallet.signMessage(message);
+      this.cache[key] = this.wallet.signMessage(message);
     }
-    return this.cache[key] as Uint8Array;
+    return (await this.cache[key]) as Uint8Array;
   }
 }
