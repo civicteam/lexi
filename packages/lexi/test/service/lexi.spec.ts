@@ -191,6 +191,26 @@ describe("LexiWallet", () => {
     expect(bytesToObj(decrypted)).to.eql(obj);
   });
 
+  it("We create a LexiWallet and call the encrypt method twice - should only sign once", async () => {
+    const signKey = sign.keyPair();
+    const signer = new SignWalletWithKey(signKey);
+
+    // derive my did from this signing key
+    const me = "did:sol:" + encode(signKey.publicKey);
+
+    // The data we want to encrypt
+    const obj = { hello: "world" };
+
+    sinon.spy(signer, "signMessage");
+
+    // encrypt and decrypt using lexi-aware wallet
+    const lexiWallet = new LexiWallet(signer, me, {});
+    await lexiWallet.encryptForMe(objToBytes(obj));
+    await lexiWallet.encryptForMe(objToBytes(obj));
+
+    expect((signer.signMessage as SinonSpy).calledOnce).to.be.true;
+  });
+
   it("We create a LexiWallet without any options", async () => {
     // restore sandbox so we can reset the stub
     sandbox.restore();

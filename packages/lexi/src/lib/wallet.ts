@@ -17,7 +17,7 @@ export interface PersonalEncryptionWallet extends EncryptionWallet {
   encryptForMe(plaintext: Uint8Array): Promise<EncryptionPackage>;
 }
 
-// A wallet that caches signd messages to avoid multiple calls to the wallet
+// A wallet that caches signed messages to avoid multiple calls to the wallet
 export class CachedSignWallet implements SignWallet {
   private readonly wallet: SignWallet;
   private readonly cache: Record<string, Uint8Array>;
