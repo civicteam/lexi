@@ -10,7 +10,7 @@ import {
   generateRandomString,
   generateX25519KeyPairFromSignature,
 } from "../lib/key";
-import type { PersonalEncryptionWallet, SignWallet } from "../lib/wallet";
+import {CachedSignWallet, type PersonalEncryptionWallet, type SignWallet} from "../lib/wallet";
 import type {JWE} from "did-jwt";
 
 export class LexiWallet implements PersonalEncryptionWallet, SignWallet {
@@ -23,7 +23,7 @@ export class LexiWallet implements PersonalEncryptionWallet, SignWallet {
   private readonly encryptionKeyBoxes: Record<string, EncryptionKeyBox>;
 
   constructor(wallet: SignWallet, myDID: string, options: LexiOptions = {}) {
-    this.wallet = wallet;
+    this.wallet = new CachedSignWallet(wallet);
     this.myDID = myDID;
     this.options = options;
     this.singleUsePublicString =
@@ -39,7 +39,7 @@ export class LexiWallet implements PersonalEncryptionWallet, SignWallet {
   }
 
   async generateKeyForSigning() {
-    await generateX25519KeyPairFromSignature(
+    return generateX25519KeyPairFromSignature(
       this.wallet,
       this.singleUsePublicString,
       this.getEncryptionKeyBox()
