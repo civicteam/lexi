@@ -331,6 +331,20 @@
     "@babel/helper-validator-identifier" "^7.24.7"
     to-fast-properties "^2.0.0"
 
+"@civic/lexi@*":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@civic/lexi/-/lexi-0.1.0.tgz#535875209f8cd1d9a44986d04aadf20e790c88ca"
+  integrity sha512-bwC4lozrGUfibpcY+uvq12O1nCykpvR/xnF/KtiNzLsL0qeQiEM5OW4p9Ind5YjH4UPDdH8ERICutMd3Y12F3A==
+  dependencies:
+    "@stablelib/base64" "^1.0.1"
+    "@stablelib/utf8" "^1.0.1"
+    axios "^0.26.1"
+    bs58 "^5.0.0"
+    did-jwt "git+https://github.com/civicteam/did-jwt"
+    did-resolver "^3.2.0"
+    ed2curve-esm "^0.3.0-alpha-1"
+    tweetnacl "^1.0.3"
+
 "@coinbase/wallet-sdk@^3.0.6":
   version "3.9.3"
   resolved "https://registry.yarnpkg.com/@coinbase/wallet-sdk/-/wallet-sdk-3.9.3.tgz#daf10cb0c85d0363315b7270cb3f02bedc408aab"

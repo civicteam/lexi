@@ -1,6 +1,7 @@
 import EncryptionKeyBox from "../lib/encryption_key_box";
 import type { LexiOptions } from "../lib/did";
 import {
+  decryptCEK,
   decryptJWEWithLexi,
   encryptForDid,
   encryptForMe,
@@ -67,6 +68,10 @@ export class LexiWallet implements PersonalEncryptionWallet, SignWallet {
       this.getEncryptionKeyBox(),
       this.options.resolve
     );
+  }
+
+  decryptCEK(encryptionPackage: EncryptionPackage, signer: SignWallet): Promise<Uint8Array | null> {
+    return decryptCEK(encryptionPackage, signer, this.getEncryptionKeyBox());
   }
 
   signMessage(message: Uint8Array): Promise<Uint8Array> {

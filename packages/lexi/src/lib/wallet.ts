@@ -11,6 +11,7 @@ interface EncryptionWallet {
     publicSigningString?: string
   ): Promise<Uint8Array>;
   encrypt(plaintext: Uint8Array, did: string): Promise<JWE>;
+  decryptCEK(encryptionPackage: EncryptionPackage, signer: SignWallet): Promise<Uint8Array | null>;
 }
 
 export interface PersonalEncryptionWallet extends EncryptionWallet {
@@ -29,9 +30,15 @@ export class CachedSignWallet implements SignWallet {
 
   async signMessage(message: Uint8Array): Promise<Uint8Array> {
     const key = message.toString();
-    if (!this.cache[key]) {
-      this.cache[key] = this.wallet.signMessage(message);
+    try {
+      if (!this.cache[key]) {
+        this.cache[key] = this.wallet.signMessage(message);
+      }
+      return (await this.cache[key]) as Uint8Array;
+    } catch (error) {
+      // clear the cache if there's an error
+      delete this.cache[key];
+      throw error;
     }
-    return (await this.cache[key]) as Uint8Array;
   }
 }
