@@ -106,20 +106,13 @@ const doDecryptCEK = async (
   return cek;
 }
 
-export const decryptCEK = async (encryptionPackage: EncryptionPackage, signer: SignWallet, encryptionKeyBox: EncryptionKeyBox
+export const decryptCEK = async (
+  encryptionPackage: EncryptionPackage,
+  encryptionKeyBox: EncryptionKeyBox
 ): Promise<Uint8Array | null> => {
-  const publicSigningString = encryptionPackage.signingString;
-  const keyPair = await generateX25519KeyPairFromSignature(
-    signer,
-    publicSigningString,
-    encryptionKeyBox
-  );
-  if (!encryptionPackage.payload.aad) {
-    throw new Error('AAD is required to decrypt CEK')
-  }
   if (!encryptionPackage.payload.recipients || encryptionPackage.payload.recipients.length === 0) {
     throw new Error('Bad encryption package: missing recipients')
   }
-  return doDecryptCEK(encryptionPackage.payload.recipients[0] as Recipient, keyPair.secretKey);
+  return doDecryptCEK(encryptionPackage.payload.recipients[0] as Recipient, encryptionKeyBox.encryptionKey!.secretKey);
 };
 

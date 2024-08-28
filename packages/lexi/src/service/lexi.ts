@@ -39,6 +39,19 @@ export class LexiWallet implements PersonalEncryptionWallet, SignWallet {
     return value;
   }
 
+  // get the key box but also make sure it contains a key pair
+  async getHydratedEncryptionKeyBox(signingString: string, signer: SignWallet): Promise<EncryptionKeyBox> {
+    const keyBox = this.getEncryptionKeyBox(signingString);
+
+    await generateX25519KeyPairFromSignature(
+      signer,
+      signingString,
+      keyBox
+    );
+
+    return keyBox;
+  }
+
   async generateKeyForSigning() {
     return generateX25519KeyPairFromSignature(
       this.wallet,
@@ -70,8 +83,9 @@ export class LexiWallet implements PersonalEncryptionWallet, SignWallet {
     );
   }
 
-  decryptCEK(encryptionPackage: EncryptionPackage, signer: SignWallet): Promise<Uint8Array | null> {
-    return decryptCEK(encryptionPackage, signer, this.getEncryptionKeyBox());
+  async decryptCEK(encryptionPackage: EncryptionPackage, signer: SignWallet): Promise<Uint8Array | null> {
+    const encryptionKeyBox = await this.getHydratedEncryptionKeyBox(encryptionPackage.signingString, signer);
+    return decryptCEK(encryptionPackage, encryptionKeyBox);
   }
 
   signMessage(message: Uint8Array): Promise<Uint8Array> {
