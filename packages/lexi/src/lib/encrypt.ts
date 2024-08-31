@@ -113,6 +113,6 @@ export const decryptCEK = async (
   if (!encryptionPackage.payload.recipients || encryptionPackage.payload.recipients.length === 0) {
     throw new Error('Bad encryption package: missing recipients')
   }
-  return doDecryptCEK(encryptionPackage.payload.recipients[0] as Recipient, encryptionKeyBox.encryptionKey!.secretKey);
+  return doDecryptCEK(encryptionPackage.payload.recipients[0]!, encryptionKeyBox.encryptionKey!.secretKey);
 };
 
