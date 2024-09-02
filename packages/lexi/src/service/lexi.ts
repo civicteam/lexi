@@ -84,14 +84,8 @@ export class LexiWallet implements PersonalEncryptionWallet, SignWallet {
     );
   }
 
-  async decryptCEK(encryptionPackage: EncryptionPackage, signer?: SignWallet): Promise<Uint8Array | null> {
-    let encryptionKeyBox;
-    if(signer) {
-      encryptionKeyBox = new EncryptionKeyBox();
-      await hydrateEncryptionKeyBox(encryptionKeyBox, encryptionPackage.signingString, signer);
-    } else {
-      encryptionKeyBox = await this.getHydratedEncryptionKeyBox(encryptionPackage.signingString);
-    }
+  async decryptCEK(encryptionPackage: EncryptionPackage): Promise<Uint8Array | null> {
+    let encryptionKeyBox = await this.getHydratedEncryptionKeyBox(encryptionPackage.signingString);
     
     return decryptCEK(encryptionPackage, encryptionKeyBox);
   }
