@@ -11,6 +11,18 @@ import chaiAsPromised from "chai-as-promised";
 import "mocha";
 import { SinonSpy } from "sinon";
 import { bytesToObj, objToBytes } from "../../src";
+import { base64ToBytes, JWE, xc20pDirDecrypter } from "did-jwt";
+
+export function stringToBytes(s: string): Uint8Array {
+  return u8a.fromString(s, 'utf-8')
+}
+
+import { concat, fromString, toString } from 'uint8arrays'
+const u8a = { toString, fromString, concat }
+
+export function toSealed(ciphertext: string, tag?: string): Uint8Array {
+  return u8a.concat([base64ToBytes(ciphertext), tag ? base64ToBytes(tag) : new Uint8Array(0)])
+}
 
 const { expect } = chai;
 chai.use(chaiAsPromised);
@@ -433,5 +445,90 @@ describe("LexiWallet", () => {
     expect(wallet1["singleUsePublicString"]).to.not.eq(
       wallet2["singleUsePublicString"]
     );
+  });
+
+  it("should decrypt the CEK", async () => {
+    const signKey = sign.keyPair();
+    const signer = new SignWalletWithKey(signKey);
+
+    // derive my did from this signing key
+    const me = "did:sol:" + encode(signKey.publicKey);
+
+    // The data we want to encrypt
+    const obj = { hello: "world" };
+
+    // encrypt using lexi-aware wallet
+    const lexiWallet = new LexiWallet(signer, me, {});
+    const encryptedWithWallet = await lexiWallet.encryptForMe(objToBytes(obj));
+
+    // decrypt the CEK
+    const CEK = await lexiWallet.decryptCEK(encryptedWithWallet);
+
+    expect(CEK).to.have.length(32);    
+  });
+
+  it("should hydrate an encryption key box", async () => {
+    const signKey = sign.keyPair();
+    const signer = new SignWalletWithKey(signKey);
+
+    // derive my did from this signing key
+    const me = "did:sol:" + encode(signKey.publicKey);
+
+    // encrypt using lexi-aware wallet
+    const lexiWallet = new LexiWallet(signer, me, {});
+
+    // decrypt the CEK
+    const keyBox = await lexiWallet.getHydratedEncryptionKeyBox('hellokitty');
+
+    expect(keyBox.encryptionKey?.secretKey).to.have.length(32);
+    expect(keyBox.encryptionKey?.publicKey).to.have.length(32);
+  });
+
+  it("should return null when decrypting CEK for non-recipient", async () => {
+    const signKey1 = sign.keyPair();
+    const signKey2 = sign.keyPair();
+    const signer1 = new SignWalletWithKey(signKey1);
+    const signer2 = new SignWalletWithKey(signKey2);
+
+    const did1 = "did:sol:" + encode(signKey1.publicKey);
+    const did2 = "did:sol:" + encode(signKey2.publicKey);
+
+    const obj = { hello: "world" };
+
+    const lexiWallet1 = new LexiWallet(signer1, did1, {});
+    const lexiWallet2 = new LexiWallet(signer2, did2, {});
+
+    const encryptedWithWallet = await lexiWallet1.encryptForMe(objToBytes(obj));
+
+    await expect(lexiWallet2.decryptCEK(encryptedWithWallet)).to.eventually.equal(null);
+  });
+
+  it("should decrypt the CEK and successfully decrypt the message", async () => {
+    const signKey = sign.keyPair();
+    const signer = new SignWalletWithKey(signKey);
+    const did = "did:sol:" + encode(signKey.publicKey);
+
+    const obj = { hello: "world" };
+
+    const lexiWallet = new LexiWallet(signer, did, {});
+
+    const encrypted = await lexiWallet.encryptForMe(objToBytes(obj));
+    const CEK = await lexiWallet.decryptCEK(encrypted);
+
+    // Implement a custom decrypt function using the CEK
+    const customDecrypt = async (jwe: JWE, cek: Uint8Array) => {
+      // This is a placeholder for the actual decryption logic
+      // You would need to implement the same encryption algorithm used in LexiWallet
+      // For this test, we're just simulating the decryption
+      //return objToBytes(obj);
+
+      const sealed = toSealed(jwe.ciphertext, jwe.tag)
+      const aad = stringToBytes(jwe.aad ? `${jwe.protected}.${jwe.aad}` : jwe.protected)
+      return xc20pDirDecrypter(cek).decrypt(sealed, base64ToBytes(jwe.iv), aad);
+    };
+
+    const decrypted = await customDecrypt(encrypted.payload, CEK!);
+
+    expect(bytesToObj(decrypted!)).to.deep.equal(obj);
   });
 });
