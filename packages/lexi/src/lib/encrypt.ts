@@ -113,6 +113,21 @@ export const decryptCEK = async (
   if (!encryptionPackage.payload.recipients || encryptionPackage.payload.recipients.length === 0) {
     throw new Error('Bad encryption package: missing recipients')
   }
-  return doDecryptCEK(encryptionPackage.payload.recipients[0]!, encryptionKeyBox.encryptionKey!.secretKey);
+
+  // Iterate through all recipients
+  for (const recipient of encryptionPackage.payload.recipients) {
+    try {
+      const cek = await doDecryptCEK(recipient, encryptionKeyBox.encryptionKey!.secretKey);
+      if (cek) {
+        return cek; // Return the successfully decrypted CEK
+      }
+    } catch (error) {
+      // If decryption fails for this recipient, continue to the next one
+      //console.warn(`Failed to decrypt CEK for recipient: ${error.message}`);
+    }
+  }
+
+  // If no recipient's CEK could be decrypted, return null
+  return null;
 };
 
