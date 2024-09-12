@@ -1,6 +1,7 @@
 import EncryptionKeyBox from "../lib/encryption_key_box";
 import type { LexiOptions } from "../lib/did";
 import {
+  decryptCEK,
   decryptJWEWithLexi,
   encryptForDid,
   encryptForMe,
@@ -11,6 +12,7 @@ import {
   generateX25519KeyPairFromSignature,
 } from "../lib/key";
 import {CachedSignWallet, type PersonalEncryptionWallet, type SignWallet} from "../lib/wallet";
+import { hydrateEncryptionKeyBox } from "../lib/util";
 import type {JWE} from "did-jwt";
 
 export class LexiWallet implements PersonalEncryptionWallet, SignWallet {
@@ -36,6 +38,19 @@ export class LexiWallet implements PersonalEncryptionWallet, SignWallet {
     const value = this.encryptionKeyBoxes[key] || new EncryptionKeyBox();
     this.encryptionKeyBoxes[key] = value;
     return value;
+  }
+
+  // get the key box for our own signer but also make sure it contains a hydrated key pair
+  async getHydratedEncryptionKeyBox(signingString: string): Promise<EncryptionKeyBox> {
+    const keyBox = this.getEncryptionKeyBox(signingString);
+
+    await hydrateEncryptionKeyBox(
+      keyBox,
+      signingString,
+      this.wallet
+    );
+
+    return keyBox;
   }
 
   async generateKeyForSigning() {
@@ -67,6 +82,12 @@ export class LexiWallet implements PersonalEncryptionWallet, SignWallet {
       this.getEncryptionKeyBox(),
       this.options.resolve
     );
+  }
+
+  async decryptCEK(encryptionPackage: EncryptionPackage): Promise<Uint8Array | null> {
+    let encryptionKeyBox = await this.getHydratedEncryptionKeyBox(encryptionPackage.signingString);
+    
+    return decryptCEK(encryptionPackage, encryptionKeyBox);
   }
 
   signMessage(message: Uint8Array): Promise<Uint8Array> {
